@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101a25">
+<title>Reborn: Kingdoms of Eternity</title>
+<style>
+:root{color-scheme:dark;--bg:#101820;--panel:#182531;--panel2:#21313e;--gold:#f2c66d;--muted:#a7b5bf;--text:#eef2ec;--green:#80d6a4;--red:#ed8585;--blue:#8ac8ed}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#233746,#101820 65%);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+button{font:inherit;color:inherit;border:1px solid #51616c;background:#293b48;padding:10px 14px;border-radius:10px;cursor:pointer;transition:.15s}
+button:hover:not(:disabled){border-color:var(--gold);background:#354b59;transform:translateY(-1px)}button:disabled{opacity:.35;cursor:not-allowed}
+.wrap{max-width:1180px;margin:auto;padding:20px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}.sigil{width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:linear-gradient(140deg,#3f8c83,#183c4d);font-size:28px;box-shadow:0 8px 24px #0005}
+h1{font:700 clamp(20px,3vw,30px)/1.15 Georgia,serif;margin:0;color:#f7e8c3;letter-spacing:.3px}.sub{font-size:12px;color:var(--muted);letter-spacing:1.4px;text-transform:uppercase;margin-top:4px}
+.pills{display:flex;gap:8px;flex-wrap:wrap}.pill{background:#1a2934;border:1px solid #3a4a55;border-radius:999px;padding:7px 12px;font-size:13px}.pill b{color:var(--gold)}
+.layout{display:grid;grid-template-columns: minmax(0,1.55fr) minmax(290px,.85fr);gap:16px}.panel{background:linear-gradient(180deg,#1b2a35f5,#17232df5);border:1px solid #354754;border-radius:16px;padding:17px;box-shadow:0 14px 30px #0003;min-width:0}
+.panel h2{font:700 20px Georgia,serif;color:#f2d99d;margin:0 0 12px}.panel h3{font-size:13px;color:#c7d3d7;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px}
+.hero{min-height:220px;border-radius:13px;padding:18px;position:relative;overflow:hidden;background:linear-gradient(90deg,#11232eeF,#11232e88),radial-gradient(circle at 75% 35%,#4b827b,#243d47 45%,#172934 75%);border:1px solid #536c72;margin-bottom:14px}
+.hero:after{content:"✦";position:absolute;right:8%;top:4%;font-size:100px;color:#e8d6a0;opacity:.15}
+.hero .eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#a8d6c9}.hero h2{font:700 27px Georgia,serif;margin:8px 0;color:#fbebbf}.hero p{max-width:650px;color:#d0dbd8;margin:0 0 12px}.hero .slime{font-size:55px;position:absolute;right:14%;bottom:12px;filter:drop-shadow(0 7px 7px #0008)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}.stat{background:#14212a;border:1px solid #32444e;border-radius:10px;padding:10px}.stat small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px}.stat strong{font-size:17px}
+.bar{height:8px;background:#0c151b;border-radius:9px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#58b99a,#8fe0b0)}.bar.mp i{background:linear-gradient(90deg,#4f9cce,#90cfff)}.bar.enemy i{background:linear-gradient(90deg,#b54f57,#f0927b)}
+.locations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.place{text-align:left;display:flex;align-items:center;gap:10px;padding:11px;background:#1c2b35}.place .emoji{font-size:25px;width:32px;text-align:center}.place b{display:block;font-size:13px}.place small{display:block;color:var(--muted);font-size:11px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.primary{background:#886a32;border-color:#d2ae5c;color:#fff4d6}.danger{border-color:#854a4d;background:#482b31}.good{border-color:#44775f;background:#244336}
+.log{max-height:250px;overflow:auto;font-size:13px;color:#bdc9cb;padding-right:4px}.log p{margin:0;padding:8px 0;border-bottom:1px solid #31404a}.log p:first-child{color:#f2d99d}.quest{background:#192934;border:1px solid #3b4d59;border-radius:10px;padding:11px;margin:8px 0;font-size:13px}.quest small{color:var(--muted)}.tag{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-left:7px}
+.battlebox{border:1px solid #724b4d;background:linear-gradient(135deg,#38292e,#1c2932);border-radius:13px;padding:14px;margin:12px 0}.battlehead{display:flex;justify-content:space-between;align-items:center;gap:10px}.enemyface{font-size:38px}.battle-actions{display:flex;gap:8px;flex-wrap:wrap}.spell{background:#253e50;border-color:#4d7792}.muted{color:var(--muted)}.notice{color:#f5d997;font-size:12px;margin-top:8px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.wrap{padding:12px}.hero .slime{right:5%;opacity:.8}.top{align-items:flex-start}.stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:430px){.locations{grid-template-columns:1fr}.pill{font-size:12px;padding:6px 9px}.panel{padding:13px}.hero .slime{font-size:43px;right:4%;bottom:5px}.hero p{max-width:75%}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top"><div class="brand"><div class="sigil">✧</div><div><h1>Reborn: Kingdoms of Eternity</h1><div class="sub">A pocket-sized fantasy adventure</div></div></div><div class="pills"><div class="pill">⚔ Level <b id="level">1</b></div><div class="pill">✦ <b id="gold">25</b> gold</div><div class="pill">🐎 <b id="mount">On foot</b></div></div></header>
+<div class="layout"><main>
+<section class="panel"><div class="hero"><div class="eyebrow">The first chapter · The Shattered Vale</div><h2 id="placeTitle">Verdant Crossing</h2><p id="placeText">A quiet village where human traders, wandering elves, and travelers share the old road. A strange corruption is spreading from the northern woods.</p><div class="slime" aria-hidden="true">🟢</div></div>
+<div class="stats">
+<div class="stat"><small>Vitality · HP</small><strong id="hpText">100 / 100</strong><div class="bar"><i id="hpBar" style="width:100%"></i></div></div>
+<div class="stat"><small>Mana · MP</small><strong id="mpText">40 / 40</strong><div class="bar mp"><i id="mpBar" style="width:100%"></i></div></div>
+<div class="stat"><small>Experience</small><strong id="xpText">0 / 30</strong><div class="bar"><i id="xpBar" style="width:0%"></i></div></div>
+</div>
+<h3>Travel the realm</h3><div class="locations" id="locations"></div>
+<div id="battle"></div>
+<div class="actions"><button id="restBtn" class="good">☾ Rest (restore HP & MP)</button><button id="saveBtn">▣ Save</button><button id="resetBtn" title="Start a new adventure">↺ New game</button></div><div class="notice">Your progress is saved in this browser. No account required.</div>
+</section>
+<section class="panel" style="margin-top:16px"><h2>Chronicle</h2><div class="log" id="log" aria-live="polite"></div></section>
+</main><aside>
+<section class="panel"><h2>Adventurer's profile</h2><div class="stat"><small>Awakened form</small><strong>Primal Slime · Nym</strong><p class="muted" style="font-size:12px;margin:4px 0 0">A reborn spirit who can learn from the creatures and people encountered.</p></div>
+<h3>Known spells</h3><div class="quest"><b>🔥 Ember Bolt</b><br><small>Cost 8 MP · Deal 20–30 damage</small></div><div class="quest"><b>🌊 Tidal Pulse</b><br><small>Cost 10 MP · Deal 17–34 damage</small></div><div class="quest"><b>🍃 Gale Cut</b><br><small>Cost 7 MP · Deal 15–28 damage</small></div><div class="quest"><b>💚 Verdant Mend</b><br><small>Cost 12 MP · Restore 30–42 HP</small></div>
+<h3>Kingdoms & peoples</h3><div class="quest">👑 <b>Kingdom of Aurel</b><br><small>Human realm ruled by Queen Elowen. Known for its road wardens and guild.</small></div><div class="quest">🌿 <b>Emerald Court</b><br><small>Elven enclave protected by the Moonroot Grove.</small></div><div class="quest">🜂 <b>Obsidian Dominion</b><br><small>A distant demon realm led by Lord Vael, whose motives are unknown.</small></div>
+<h3>Active quests</h3><div id="quests"></div>
+</section></aside></div></div>
+<script>
+(() => {
+const LOCATIONS = [
+{id:"village",name:"Verdant Crossing",icon:"🏘️",kind:"Sanctuary",text:"A quiet village where human traders, wandering elves, and travelers share the old road. A strange corruption is spreading from the northern woods."},
+{id:"forest",name:"Moonroot Grove",icon:"🌳",kind:"Wilds · Easy",text:"An ancient elven woodland. Silver leaves whisper with old magic, but shadow wolves have begun hunting near the paths."},
+{id:"hills",name:"Sundown Hills",icon:"⛰️",kind:"Wilds · Moderate",text:"Wind-carved hills watched by the royal road wardens. Bandits have been stealing supplies from passing caravans."},
+{id:"ruins",name:"The Ashen Ruins",icon:"🏰",kind:"Dungeon · Hard",text:"A fallen fortress sealed after the last demon war. A corrupted knight guards the cracked gate."},
+{id:"court",name:"Emerald Court",icon:"🧝",kind:"Kingdom · Safe",text:"The elven court, grown around a colossal moonroot. The queen's envoy is seeking help to heal the forest."},
+{id:"citadel",name:"Aurel Citadel",icon:"👑",kind:"Capital · Safe",text:"The human capital, home to Queen Elowen and the Adventurers' Guild. Rumors speak of a pact with the Obsidian Dominion."}
+];
+const ENEMIES={
+forest:[{name:"Shadow Wolf",icon:"🐺",hp:42,atk:8,xp:14,gold:8},{name:"Thornling",icon:"🌱",hp:34,atk:7,xp:12,gold:6}],
+hills:[{name:"Road Bandit",icon:"🥷",hp:58,atk:11,xp:20,gold:15},{name:"Hill Brute",icon:"👹",hp:72,atk:13,xp:25,gold:18}],
+ruins:[{name:"Corrupted Knight",icon:"🛡️",hp:112,atk:17,xp:42,gold:35},{name:"Ash Wraith",icon:"👻",hp:88,atk:15,xp:34,gold:25}],
+};
+const NEW=()=>({level:1,xp:0,gold:25,hp:100,mp:40,maxHp:100,maxMp:40,location:"village",horse:false,inventory:{herb:2,ether:1},quests:{wolf:0,bandit:0,ruin:false,herb:false},battle:null,log:["You awaken as Nym, a small primal slime, in the Shattered Vale.","The village elder asks you to investigate the strange corruption."],visited:["village"]});
+let s;
+try{s=JSON.parse(localStorage.getItem("rebornKingdomsSave"))||NEW()}catch{s=NEW()}
+const $=id=>document.getElementById(id);
+function say(t){s.log.unshift(t);s.log=s.log.slice(0,35)}
+function save(silent=false){try{localStorage.setItem("rebornKingdomsSave",JSON.stringify(s));if(!silent)say("Your progress has been saved.");render()}catch{say("Save unavailable in this browser session.");render()}}
+function loc(){return LOCATIONS.find(l=>l.id===s.location)||LOCATIONS[0]}
+function questHTML(title,desc,done){return '<div class="quest"><b>'+title+'</b><span class="tag">'+(done?"Complete":"In progress")+'</span><br><small>'+desc+'</small></div>'}
+function render(){
+$("level").textContent=s.level;$("gold").textContent=s.gold;$("mount").textContent=s.horse?"Horse":"On foot";
+$("placeTitle").textContent=loc().name;$("placeText").textContent=loc().text;
+$("hpText").textContent=s.hp+" / "+s.maxHp;$("mpText").textContent=s.mp+" / "+s.maxMp;$("xpText").textContent=s.xp+" / "+(s.level*30);
+$("hpBar").style.width=(100*s.hp/s.maxHp)+"%";$("mpBar").style.width=(100*s.mp/s.maxMp)+"%";$("xpBar").style.width=(100*s.xp/(s.level*30))+"%";
+$("locations").innerHTML=LOCATIONS.map(l=>'<button class="place" data-loc="'+l.id+'" '+(s.battle?'disabled':'')+'><span class="emoji">'+l.icon+'</span><span><b>'+l.name+(s.location===l.id?" · Here":"")+'</b><small>'+l.kind+'</small></span></button>').join("");
+document.querySelectorAll("[data-loc]").forEach(b=>b.addEventListener("click",()=>travel(b.dataset.loc)));
+$("quests").innerHTML=questHTML("Forest investigation","Defeat 3 creatures in Moonroot Grove · "+s.quests.wolf+"/3",s.quests.wolf>=3)+questHTML("Roadside trouble","Defeat 2 bandits in Sundown Hills · "+s.quests.bandit+"/2",s.quests.bandit>=2)+questHTML("The sealed gate","Defeat the guardian in the Ashen Ruins.",s.quests.ruin)+questHTML("A green remedy","Visit the Emerald Court after defeating 3 forest creatures.",s.quests.herb);
+$("log").innerHTML=s.log.map(x=>"<p>"+escapeHTML(x)+"</p>").join("");
+$("battle").innerHTML=s.battle?battleHTML():"";
+if(s.battle){document.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",()=>act(b.dataset.action)))}
+$("restBtn").disabled=!!s.battle||s.location!=="village"&&s.location!=="court"&&s.location!=="citadel";
+}
+function escapeHTML(x){return String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function travel(id){
+if(s.battle)return;
+s.location=id;if(!s.visited.includes(id))s.visited.push(id);
+let l=loc();say("You travel to "+l.name+".");
+if(id==="village"){say("The village market is peaceful. The stable keeper offers a horse for 30 gold.");}
+if(id==="court"&&s.quests.wolf>=3&&!s.quests.herb){s.quests.herb=true;s.inventory.herb=(s.inventory.herb||0)+2;say("The elven envoy rewards you with two moon herbs and asks you to keep the grove safe.");}
+render();
+}
+function beginBattle(){
+let pool=ENEMIES[s.location];if(!pool)return;
+let e=pool[Math.floor(Math.random()*pool.length)];
+if(s.location==="ruins"&&s.quests.ruin){say("The guardian has already fallen. The ruins are quiet.");render();return}
+s.battle={name:e.name,icon:e.icon,hp:e.hp,maxHp:e.hp,atk:e.atk,xp:e.xp,gold:e.gold};
+say(e.name+" emerges to challenge you!");render();
+}
+function battleHTML(){let b=s.battle;return '<div class="battlebox"><div class="battlehead"><div><strong style="font-size:17px">'+b.name+'</strong><div class="bar enemy"><i style="width:'+100*b.hp/b.maxHp+'%"></i></div><small class="muted">'+b.hp+' / '+b.maxHp+' HP</small></div><div class="enemyface">'+b.icon+'</div></div><h3>Choose an action</h3><div class="battle-actions"><button class="primary" data-action="attack">⚔ Strike</button><button class="spell" data-action="ember" '+(s.mp<8?'disabled':'')+'>🔥 Ember · 8 MP</button><button class="spell" data-action="tide" '+(s.mp<10?'disabled':'')+'>🌊 Tidal · 10 MP</button><button class="spell" data-action="gale" '+(s.mp<7?'disabled':'')+'>🍃 Gale · 7 MP</button><button class="good" data-action="mend" '+(s.mp<12||s.hp===s.maxHp?'disabled':'')+'>💚 Mend · 12 MP</button><button data-action="herb" '+(!(s.inventory.herb>0)||s.hp===s.maxHp?'disabled':'')+'>🌿 Use herb</button><button data-action="flee">↩ Flee</button></div></div>'}
+function finishBattle(){let b=s.battle;s.battle=null;s.xp+=b.xp;s.gold+=b.gold;say("Victory! +"+b.xp+" XP and +"+b.gold+" gold.");
+if(s.location==="forest")s.quests.wolf=Math.min(3,s.quests.wolf+1);
+if(s.location==="hills"&&b.name==="Road Bandit")s.quests.bandit=Math.min(2,s.quests.bandit+1);
+if(s.location==="ruins")s.quests.ruin=true;
+while(s.xp>=s.level*30){s.xp-=s.level*30;s.level++;s.maxHp+=18;s.maxMp+=8;s.hp=s.maxHp;s.mp=s.maxMp;say("Level up! You are now level "+s.level+". Your vitality and mana have increased.");}
+}
+function act(a){
+let b=s.battle;if(!b)return;
+if(a==="flee"){s.battle=null;say("You retreat safely from the encounter.");render();return}
+let dmg=0;
+if(a==="attack"){dmg=11+Math.floor(Math.random()*7)+s.level*2;say("Nym strikes for "+dmg+" damage.");}
+const spells={ember:{cost:8,min:20,max:30,name:"Ember Bolt"},tide:{cost:10,min:17,max:34,name:"Tidal Pulse"},gale:{cost:7,min:15,max:28,name:"Gale Cut"}};
+if(spells[a]){let z=spells[a];if(s.mp<z.cost)return;s.mp-=z.cost;dmg=z.min+Math.floor(Math.random()*(z.max-z.min+1))+s.level;say(z.name+" hits for "+dmg+" damage.");}
+if(a==="mend"){if(s.mp<12)return;s.mp-=12;let heal=30+Math.floor(Math.random()*13);let actual=Math.min(heal,s.maxHp-s.hp);s.hp+=actual;say("Verdant Mend restores "+actual+" HP.");}
+if(a==="herb"){if(!(s.inventory.herb>0))return;s.inventory.herb--;let actual=Math.min(35,s.maxHp-s.hp);s.hp+=actual;say("You use a moon herb and recover "+actual+" HP.");}
+b.hp=Math.max(0,b.hp-dmg);
+if(b.hp<=0){finishBattle();render();return}
+let hit=Math.max(1,b.atk+Math.floor(Math.random()*5)-Math.floor(s.level/2));s.hp=Math.max(0,s.hp-hit);say(b.name+" hits you for "+hit+" damage.");
+if(s.hp<=0){s.hp=Math.ceil(s.maxHp*.5);s.mp=Math.ceil(s.maxMp*.5);s.gold=Math.max(0,s.gold-5);s.location="village";s.battle=null;say("You awaken at the village shrine. The healer restores you, but you lose 5 gold.");}
+render();
+}
+function encounter(){if(s.battle)return;if(!ENEMIES[s.location]){say("There are no hostile creatures here.");render();return}beginBattle()}
+$("restBtn").addEventListener("click",()=>{if(s.battle)return;if(!["village","court","citadel"].includes(s.location))return;s.hp=s.maxHp;s.mp=s.maxMp;say("You rest at a safe haven. HP and MP fully restored.");render()});
+$("saveBtn").addEventListener("click",()=>save());
+$("resetBtn").addEventListener("click",()=>{if(confirm("Start a new adventure? This will replace your saved progress.")){s=NEW();save(true);render()}});
+function special(){if(s.location==="village"){if(s.horse){say("Your horse waits by the stable.");}else if(s.gold>=30){s.gold-=30;s.horse=true;say("You buy a steady chestnut horse. Travel will feel less daunting.");}else say("The stable keeper asks for 30 gold. You have "+s.gold+".");}
+else if(s.location==="citadel"){say("Queen Elowen's steward offers a guild writ: prove yourself by investigating the northern wilds.");}
+else if(s.location==="court"){if(s.quests.wolf>=3){s.quests.herb=true;say("The elven envoy thanks you for protecting the grove.");}else say("The elven envoy asks you to clear the creatures from Moonroot Grove.");}
+else if(ENEMIES[s.location])encounter();render()}
+$("locations").addEventListener("dblclick",()=>{}); 
+// A contextual action is added to the main travel panel.
+const ctx=document.createElement("button");ctx.id="contextBtn";ctx.className="primary";ctx.style.marginTop="10px";$("locations").after(ctx);
+ctx.addEventListener("click",special);
+const oldRender=render;
+render=function(){oldRender();if($("contextBtn")){$("contextBtn").textContent=s.location==="village"?"🐎 Stable · Buy a horse (30 gold)":s.location==="citadel"?"👑 Speak to the royal steward":s.location==="court"?"🧝 Speak to the elven envoy":"⚔ Search area · Encounter"}};
+render();
+})();
+</script></body></html>
