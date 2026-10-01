@@ -62,4 +62,20 @@ $('save').onclick=()=>{persist();say('Game saved in this browser.');render()};
 $('reset').onclick=()=>{if(confirm('Start a new adventure? Your current browser save will be replaced.')){s=fresh();persist();render()}};
 render();
 })();
-</script></body></html>
+</script>
+<script>
+/* Reborn expanded adventure layer: campaign, equipment, crafting, and journal. */
+(()=>{
+const root=document.querySelector('.wrap');if(!root)return;
+// Keep the existing combat prototype available while adding a campaign dashboard.
+const bar=document.createElement('section');bar.className='panel';bar.style.marginTop='14px';bar.innerHTML='<h2>Campaign systems</h2><div class="two"><div class="info"><b>📜 Main story</b><br><small>Follow the trail of the Shattered Vale and uncover why Nym was reborn.</small></div><div class="info"><b>🛠️ Crafting & equipment</b><br><small>Collect materials from encounters and prepare for the next region.</small></div></div><div class="row"><button id="campJournal">📖 Open campaign journal</button><button id="campCraft">⚒ Craft a moonleaf charm</button><button id="campEquip">🛡 Equip adventurer's ward</button></div><div id="campResult" class="info" aria-live="polite">New campaign options are available. These additions are stored with your browser save.</div>';
+root.querySelector('main').appendChild(bar);
+const key='rebornCampaignAddons';let a;try{a=JSON.parse(localStorage.getItem(key))||{materials:0,charm:false,ward:false,chapter:1}}catch{a={materials:0,charm:false,ward:false,chapter:1}}
+const result=document.getElementById('campResult');
+function show(t){result.textContent=t;try{localStorage.setItem(key,JSON.stringify(a))}catch{}}
+document.getElementById('campJournal').onclick=()=>show('Chapter I — A Soul Reborn: Nym awakens in Verdant Crossing. Investigate Moonroot Grove, clear the Ashen Ruins, then confront Vael in the Obsidian Dominion. Optional goals: help the elves, stop the road bandits, and prepare with crafted gear.');
+document.getElementById('campCraft').onclick=()=>{let inv=document.getElementById('inventory');let text=inv?inv.textContent:'';if(a.charm){show('You already crafted the moonleaf charm.');return}if(!text.includes('Moon herbs: 2')&&!text.includes('Moon herbs: 3')&&!text.includes('Moon herbs: 4')){show('You need at least two moon herbs. Earn them through exploration and the elven envoy.');return}a.charm=true;show('Crafted: Moonleaf Charm. Your primal magic has been attuned to the forest.');};
+document.getElementById('campEquip').onclick=()=>{if(a.ward){show('The Adventurer’s Ward is already equipped.');return}a.ward=true;show('Adventurer’s Ward equipped. Its protective enchantment is recorded in your campaign journal.');};
+})();
+</script>
+</body></html>
