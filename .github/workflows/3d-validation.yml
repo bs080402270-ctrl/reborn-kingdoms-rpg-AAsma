@@ -22,7 +22,7 @@ jobs:
             const attrs=matches[i][1]||'',code=matches[i][2];
             if(!code.trim()) continue;
             try {
-              if(/type=["']module["']/i.test(attrs)){
+              if(/type=["'](?:module|importmap)["']/i.test(attrs)){
                 console.log('module script',i,'deferred to browser smoke test');
               }else{
                 new Function(code);console.log('script',i,'syntax OK');
