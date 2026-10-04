@@ -293,11 +293,11 @@ function makeRig(race,remote=false){
   root.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
   scene.add(root);
   const skeleton=new T.Skeleton(Object.values(b));
-  root.userData={race,bones:b,skeleton,remote};
+  root.userData={race,bones:b,skeleton,remote,aura};
   return {root,bones:b,skeleton};
 }
 
-function track(boneName,property,times,values){return new T.NumberKeyframeTrack(boneName+'.'+property,times,values)}
+function track(boneName,property,times,values){const node=String(boneName).split('.').pop();return new T.NumberKeyframeTrack(node+'.'+property,times,values)}
 function makeClips(rig){
   const n=rig.root.name, t=[0,.25,.5,.75,1];
   const clips=[
