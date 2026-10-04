@@ -17,12 +17,20 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const html=fs.readFileSync('index.html','utf8');
-          const scripts=[...html.matchAll(/<script(?:[^>]*)>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(s=>s.trim());
-          for (let i=0;i<scripts.length;i++) {
-            try { new Function(scripts[i]); console.log('script',i,'syntax OK'); }
-            catch(e) { console.error('script',i,e); process.exitCode=1; }
+          const matches=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)];
+          const fs=require('fs'),cp=require('child_process');
+          for (let i=0;i<matches.length;i++) {
+            const attrs=matches[i][1]||'',code=matches[i][2];
+            if(!code.trim()) continue;
+            try {
+              if(/type=["']module["']/i.test(attrs)){
+                const file='/tmp/aasma-script-'+i+'.mjs';fs.writeFileSync(file,code);cp.execFileSync(process.execPath,['--check',file],{stdio:'pipe'});console.log('module script',i,'syntax OK');
+              }else{
+                new Function(code);console.log('script',i,'syntax OK');
+              }
+            } catch(e) { console.error('script',i,e.stdout?.toString()||e.stderr?.toString()||e); process.exitCode=1; }
           }
-          if (!html.includes('three@0.160.0') || !html.includes('new T.Skeleton')) process.exitCode=1;
+          if (!html.includes('three@0.160.0') || !html.includes('new T.Skeleton') || !html.includes('AAsmaGLTFLoader') || !html.includes('Quaternius')) process.exitCode=1;
           NODE
       - name: Browser smoke test
         run: |
