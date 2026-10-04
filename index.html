@@ -57,7 +57,7 @@
 <canvas id="threeCanvas" aria-label="Interactive 3D character scene"></canvas>
 <div id="charHud"><div class="hudbox">Race: <b id="raceName">Hero</b><div id="animState">Idle</div></div><div class="hudbox">Rig: <b>Humanoid</b><br>Combat: <b id="combatState">Ready</b></div></div>
 <div id="racePanel"><h3>Character Selection</h3><div class="raceGrid">
-<button data-race="Hero" class="active">⚔ Hero</button><button data-race="Demon">😈 Demon</button><button data-race="Elf">🧝 Elf</button><button data-race="Fairy">🧚 Fairy</button>
+<button data-race="Hero" class="active">⚔ Hero</button><button data-race="Demon">😈 Demon</button><button data-race="Elf">🧝 Elf</button><button data-race="Fairy">🧚 Fairy</button><button data-race="Noble">👑 Noble</button><button data-race="Wizard">🪄 Wizard</button>
 </div><div class="customGrid">
 <label>Skin <input id="skinColor" type="color" value="#d59b78"></label>
 <label>Hair <input id="hairColor" type="color" value="#3b2418"></label>
@@ -242,12 +242,14 @@ buildWorld();
 // Character system: production GLB pipeline with procedural fallback.
 const raceCfg={
  Hero:{skin:0xd39a78,hair:0x241a22,cloth:0x3e638d,trim:0xd7b766,glow:0x6dd5c2,eye:0x3b9ac7,tint:0xffffff},
+ Noble:{skin:0xe0ad8b,hair:0x5a3525,cloth:0x6d507d,trim:0xf0cf7b,glow:0xe5a7ff,eye:0x6ec5e8,tint:0xf1d8ec},
+ Wizard:{skin:0xc98f78,hair:0x18253f,cloth:0x3d477d,trim:0x8fd7ff,glow:0x72b7ff,eye:0xb6e6ff,tint:0xcbdcff},
  Demon:{skin:0x8e4350,hair:0x171018,cloth:0x4b2536,trim:0xd24f5b,glow:0xff5968,eye:0xffd66d,tint:0x8f4252},
  Elf:{skin:0xcfa184,hair:0x527b68,cloth:0x355f51,trim:0xd6c47b,glow:0x9de6bb,eye:0x79d8ad,tint:0x9bc8a5},
  Fairy:{skin:0xe5b4ad,hair:0x8456a4,cloth:0x5e4d8d,trim:0xf0c8ff,glow:0xd49bff,eye:0xa9e9ff,tint:0xd6b5ea}
 };
 const bonesNames=['Hips','Spine','Chest','Neck','Head','LeftShoulder','LeftElbow','LeftHand','RightShoulder','RightElbow','RightHand','LeftThigh','LeftKnee','LeftFoot','RightThigh','RightKnee','RightFoot'];
-let player,remotePlayer,selectedRace='Hero',mixer,actions={},activeAction,animName='Idle',animClock=0,playerVelocity=new T.Vector3();
+let player,remotePlayer,selectedRace='Hero',selectedOutfit='Auto',mixer,actions={},activeAction,animName='Idle',animClock=0,playerVelocity=new T.Vector3();
 let importedCharacterSource=null, importedAnimationClips=[], importedReady=false, importedLoadError='';
 let remoteMixer=null,remoteActions={},remoteActiveAction=null,remoteAnimName='Idle';
 let outfitSources={};
@@ -384,8 +386,9 @@ function syncOutfitSkeleton(root){
   const baseBones=new Map();base.traverse(o=>{if(o.isBone)baseBones.set(o.name,o)});
   outfit.traverse(o=>{if(o.isBone){const b=baseBones.get(o.name);if(b){o.position.copy(b.position);o.quaternion.copy(b.quaternion);o.scale.copy(b.scale)}}});
 }
-function attachKnightOutfit(root,race){
-  const source=outfitSources[race]||outfitSources.Hero;if(!source?.scene)return;
+function attachKnightOutfit(root,race,outfitName=selectedOutfit){
+  const key=outfitName==='Auto'?(race==='Noble'?'Noble':race==='Wizard'?'Wizard':race==='Fairy'?'Wizard':race==='Hero'?'Noble':'Knight'):outfitName;
+  const source=outfitSources[key]||outfitSources.Hero;if(!source?.scene)return;
   if(root.userData.outfitModel)root.remove(root.userData.outfitModel);
   const outfit=window.AAsmaSkeletonUtils.clone(source.scene);
   const base=root.userData.importedModel;
@@ -411,7 +414,7 @@ function installImportedCharacter(actor,race,isRemote=false){
   tintImportedModel(model,race);createImportedAccessories(model,race);
   root.add(model);
   root.userData.imported=true;root.userData.importedModel=model;root.userData.race=race;
-  if(outfitSources.Hero)attachKnightOutfit(root,race);
+  if(outfitSources.Hero)attachKnightOutfit(root,race,selectedOutfit);
   const targetMixer=new T.AnimationMixer(root);
   const targetActions=configureImportedActions(actor,targetMixer);
   if(isRemote){
@@ -460,7 +463,7 @@ function loadImportedAssets(){
   Promise.all([load(ASSET_URLS.character),load(ASSET_URLS.ual1),load(ASSET_URLS.ual2),load(ASSET_URLS.outfitKnight),load(ASSET_URLS.outfitNoble),load(ASSET_URLS.outfitWizard)]).then(([character,ual1,ual2,knight,noble,wizard])=>{
     importedCharacterSource=character;
     importedAnimationClips=[...(ual1.animations||[]),...(ual2.animations||[])];
-    outfitSources={Hero:noble,Demon:knight,Elf:knight,Fairy:wizard};
+    outfitSources={Hero:noble,Noble:noble,Demon:knight,Elf:knight,Fairy:wizard,Wizard:wizard};
     window.__AASMA_OUTFIT_READY__=true;
     importedReady=true;
     window.__AASMA_IMPORTED_ASSET_READY__=true;
@@ -549,6 +552,7 @@ function animate(){
   if(conn&&conn.open&&Math.floor(now/100)%2===0)conn.send({type:'state',x:player.root.position.x,y:player.root.position.y,z:player.root.position.z,r:player.root.rotation.y,anim:animName,race:selectedRace});
   renderer.render(scene,camera);
 }
+window.AAsmaRuntime={scene,player:()=>player,remotePlayer:()=>remotePlayer,camera,renderer,setRace,animateAction,move,getRace:()=>selectedRace,getOutfit:()=>selectedOutfit,setOutfit:(name)=>{selectedOutfit=name; if(player)attachKnightOutfit(player.root,selectedRace,name)},burst,connected:()=>!!(conn&&conn.open),send:(data)=>{if(conn&&conn.open)conn.send(data)},getPeerId:()=>pvpId};
 animate();
 })();
 </script></body></html>
