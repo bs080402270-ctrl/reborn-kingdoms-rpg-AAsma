@@ -552,7 +552,12 @@ function animate(){
   if(conn&&conn.open&&Math.floor(now/100)%2===0)conn.send({type:'state',x:player.root.position.x,y:player.root.position.y,z:player.root.position.z,r:player.root.rotation.y,anim:animName,race:selectedRace});
   renderer.render(scene,camera);
 }
-window.AAsmaRuntime={scene,player:()=>player,remotePlayer:()=>remotePlayer,camera,renderer,setRace,animateAction,move,getRace:()=>selectedRace,getOutfit:()=>selectedOutfit,setOutfit:(name)=>{selectedOutfit=name; if(player)attachKnightOutfit(player.root,selectedRace,name)},burst,connected:()=>!!(conn&&conn.open),send:(data)=>{if(conn&&conn.open)conn.send(data)},getPeerId:()=>pvpId};
+function awardXP(amount){
+  const n=Math.max(0,Math.floor(amount||0)); s.xp+=n; say('You earn '+n+' XP.');
+  while(s.xp>=s.level*30){s.xp-=s.level*30;s.level++;s.maxHp+=18;s.maxMp+=8;s.hp=s.maxHp;s.mp=s.maxMp;say('Level up! You are now level '+s.level+'. Your HP and MP have increased.');}
+  render();persist();
+}
+window.AAsmaRuntime={scene,player:()=>player,remotePlayer:()=>remotePlayer,camera,renderer,setRace,animateAction,move,getRace:()=>selectedRace,getOutfit:()=>selectedOutfit,setOutfit:(name)=>{selectedOutfit=name; if(player)attachKnightOutfit(player.root,selectedRace,name)},burst,connected:()=>!!(conn&&conn.open),send:(data)=>{if(conn&&conn.open)conn.send(data)},getPeerId:()=>pvpId,getState:()=>s,awardXP};
 animate();
 })();
 </script></body></html>
