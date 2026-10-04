@@ -250,13 +250,15 @@ const bonesNames=['Hips','Spine','Chest','Neck','Head','LeftShoulder','LeftElbow
 let player,remotePlayer,selectedRace='Hero',mixer,actions={},activeAction,animName='Idle',animClock=0,playerVelocity=new T.Vector3();
 let importedCharacterSource=null, importedAnimationClips=[], importedReady=false, importedLoadError='';
 let remoteMixer=null,remoteActions={},remoteActiveAction=null,remoteAnimName='Idle';
-let outfitSource=null;
+let outfitSources={};
 let importedAssetVersion='Quaternius CC0';
 const ASSET_URLS={
  character:'https://cdn.jsdelivr.net/gh/Seyamalam/blood-league-kickoff@aa02a4e6d8337a0604d2da131bcbbeb1f01badf0/public/assets/vendor/quaternius/night-striker.glb',
  ual1:'https://cdn.jsdelivr.net/gh/richardanaya/metaverse-avatar@84fd636910bf713099010efbab7f3c84550f4bcb/anims/UAL1_Standard.glb',
  ual2:'https://cdn.jsdelivr.net/gh/richardanaya/metaverse-avatar@84fd636910bf713099010efbab7f3c84550f4bcb/anims/UAL2_Standard.glb',
- outfit:'assets/characters/outfits/Male_Knight_Body_Armor.gltf'
+ outfitKnight:'assets/characters/outfits/Male_Knight_Body_Armor.gltf',
+ outfitNoble:'assets/characters/outfits/Male_Noble_Body.gltf',
+ outfitWizard:'assets/characters/outfits/Male_Wizard_Body.gltf'
 };
 const dummyTarget=new T.Vector3();
 
@@ -385,7 +387,7 @@ function syncOutfitSkeleton(root){
 function attachKnightOutfit(root,race){
   if(!outfitSource?.scene)return;
   if(root.userData.outfitModel)root.remove(root.userData.outfitModel);
-  const outfit=window.AAsmaSkeletonUtils.clone(outfitSource.scene);
+  const outfit=window.AAsmaSkeletonUtils.clone(source.scene);
   const base=root.userData.importedModel;
   const box=new T.Box3().setFromObject(base),size=box.getSize(new T.Vector3());
   const scale=2.75/Math.max(.001,size.y);outfit.scale.setScalar(scale);outfit.rotation.copy(base.rotation);outfit.position.copy(base.position);
@@ -409,7 +411,7 @@ function installImportedCharacter(actor,race,isRemote=false){
   tintImportedModel(model,race);createImportedAccessories(model,race);
   root.add(model);
   root.userData.imported=true;root.userData.importedModel=model;root.userData.race=race;
-  if(outfitSource)attachKnightOutfit(root,race);
+  if(outfitSources.Hero)attachKnightOutfit(root,race);
   const targetMixer=new T.AnimationMixer(root);
   const targetActions=configureImportedActions(actor,targetMixer);
   if(isRemote){
@@ -455,10 +457,10 @@ function loadImportedAssets(){
   if(importedReady||importedCharacterSource||!window.AAsmaGLTFLoader)return;
   const Loader=window.AAsmaGLTFLoader,loader=new Loader();
   const load=url=>new Promise((resolve,reject)=>loader.load(url,resolve,undefined,reject));
-  Promise.all([load(ASSET_URLS.character),load(ASSET_URLS.ual1),load(ASSET_URLS.ual2),load(ASSET_URLS.outfit)]).then(([character,ual1,ual2,outfit])=>{
+  Promise.all([load(ASSET_URLS.character),load(ASSET_URLS.ual1),load(ASSET_URLS.ual2),load(ASSET_URLS.outfitKnight),load(ASSET_URLS.outfitNoble),load(ASSET_URLS.outfitWizard)]).then(([character,ual1,ual2,knight,noble,wizard])=>{
     importedCharacterSource=character;
     importedAnimationClips=[...(ual1.animations||[]),...(ual2.animations||[])];
-    outfitSource=outfit;
+    outfitSources={Hero:noble,Demon:knight,Elf:knight,Fairy:wizard};
     window.__AASMA_OUTFIT_READY__=true;
     importedReady=true;
     window.__AASMA_IMPORTED_ASSET_READY__=true;
