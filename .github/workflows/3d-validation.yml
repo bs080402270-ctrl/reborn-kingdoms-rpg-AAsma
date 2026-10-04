@@ -52,9 +52,21 @@ jobs:
             await p.click('[data-anim="cast"]');
             await p.click('[data-anim="block"]');
             await p.click('[data-move="forward"]');
+            await p.waitForFunction(()=>window.__AASMA_IMPORTED_ASSET_READY__===true,{timeout:30000});
+            const animState=await p.locator('#animState').textContent();
+            if(!animState || !animState.includes('imported')) throw new Error('Imported character pipeline did not become active: '+animState);
+            await p.screenshot({path:'aasma-character-preview.png',fullPage:true});
             if(errors.length){console.error(errors.join('\n'));process.exit(1)}
-            console.log('Browser smoke test OK');
+            console.log('Browser smoke test OK: imported GLB + animation pipeline active');
             await b.close();
           })();
           NODE
           kill $SERVER || true
+
+      - name: Upload character preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aasma-character-preview
+          path: aasma-character-preview.png
+          if-no-files-found: ignore
