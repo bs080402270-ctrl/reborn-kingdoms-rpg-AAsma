@@ -522,7 +522,7 @@ async function connectPvP(){
 function wireConn(){
   if(!conn)return;const status=document.getElementById('pvpStatus');
   conn.on('open',()=>{status.textContent='⚔ Opponent connected · REAL PLAYER VS PLAYER';remotePlayer.root.visible=true;conn.send({type:'hello',race:selectedRace})});
-  conn.on('data',d=>{if(!d)return;if(d.type==='state'){remotePlayer.root.position.set(d.x,d.y,d.z);remotePlayer.root.rotation.y=d.r;remotePlayer.root.visible=true;if(d.anim){remotePlayer.root.userData.lastAnim=d.anim;playRemote(d.anim)}}if(d.type==='race'){remotePlayer.root.visible=true}});
+  conn.on('data',d=>{if(!d)return;if(d.type==='state'){remotePlayer.root.position.set(d.x,d.y,d.z);remotePlayer.root.rotation.y=d.r;remotePlayer.root.visible=true;if(d.anim){remotePlayer.root.userData.lastAnim=d.anim;playRemote(d.anim)}}if(d.type==='race'){remotePlayer.root.visible=true;try{installImportedCharacter(remotePlayer,d.race||'Hero',true)}catch{}}if(d.type==='hello'){remotePlayer.root.visible=true;if(d.race)try{installImportedCharacter(remotePlayer,d.race,true)}catch{}}window.dispatchEvent(new CustomEvent('AAsmaNetMessage',{detail:d}))});
   conn.on('close',()=>{status.textContent='Opponent disconnected · Arena open';remotePlayer.root.visible=false});
 }
 document.getElementById('pvpConnect').onclick=connectPvP;
