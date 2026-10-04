@@ -142,7 +142,14 @@ document.getElementById('campCraft').onclick=()=>{let inv=document.getElementByI
 document.getElementById('campEquip').onclick=()=>{if(a.ward){show('The Adventurer’s Ward is already equipped.');return}a.ward=true;show('Adventurer’s Ward equipped. Its protective enchantment is recorded in your campaign journal.');};
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import {GLTFLoader} from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+import * as SkeletonUtils from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/utils/SkeletonUtils.js";
+window.AAsmaGLTFLoader=GLTFLoader;
+window.AAsmaSkeletonUtils=SkeletonUtils;
+window.dispatchEvent(new Event("AAsmaGLTFReady"));
+</script>
 <script id="three3d-runtime">
 (()=>{'use strict';
 const canvas=document.getElementById('threeCanvas'); if(!canvas||!window.THREE)return;
@@ -232,15 +239,27 @@ function buildWorld(){
 function glowMat(c){return new T.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:3,roughness:.25,metalness:.1})}
 buildWorld();
 
-// Character system: detailed stylized meshes + explicit humanoid skeleton + AnimationClips.
+// Character system: production GLB pipeline with procedural fallback.
 const raceCfg={
- Hero:{skin:0xd39a78,hair:0x241a22,cloth:0x3e638d,trim:0xd7b766,glow:0x6dd5c2,eye:0x3b9ac7},
- Demon:{skin:0x8e4350,hair:0x171018,cloth:0x4b2536,trim:0xd24f5b,glow:0xff5968,eye:0xffd66d},
- Elf:{skin:0xcfa184,hair:0x527b68,cloth:0x355f51,trim:0xd6c47b,glow:0x9de6bb,eye:0x79d8ad},
- Fairy:{skin:0xe5b4ad,hair:0x8456a4,cloth:0x5e4d8d,trim:0xf0c8ff,glow:0xd49bff,eye:0xa9e9ff}
+ Hero:{skin:0xd39a78,hair:0x241a22,cloth:0x3e638d,trim:0xd7b766,glow:0x6dd5c2,eye:0x3b9ac7,tint:0xffffff},
+ Demon:{skin:0x8e4350,hair:0x171018,cloth:0x4b2536,trim:0xd24f5b,glow:0xff5968,eye:0xffd66d,tint:0x8f4252},
+ Elf:{skin:0xcfa184,hair:0x527b68,cloth:0x355f51,trim:0xd6c47b,glow:0x9de6bb,eye:0x79d8ad,tint:0x9bc8a5},
+ Fairy:{skin:0xe5b4ad,hair:0x8456a4,cloth:0x5e4d8d,trim:0xf0c8ff,glow:0xd49bff,eye:0xa9e9ff,tint:0xd6b5ea}
 };
 const bonesNames=['Hips','Spine','Chest','Neck','Head','LeftShoulder','LeftElbow','LeftHand','RightShoulder','RightElbow','RightHand','LeftThigh','LeftKnee','LeftFoot','RightThigh','RightKnee','RightFoot'];
 let player,remotePlayer,selectedRace='Hero',mixer,actions={},activeAction,animName='Idle',animClock=0,playerVelocity=new T.Vector3();
+let importedCharacterSource=null, importedAnimationClips=[], importedReady=false, importedLoadError='';
+let remoteMixer=null,remoteActions={},remoteActiveAction=null,remoteAnimName='Idle';
+let outfitSources={};
+let importedAssetVersion='Quaternius CC0';
+const ASSET_URLS={
+ character:'https://cdn.jsdelivr.net/gh/Seyamalam/blood-league-kickoff@aa02a4e6d8337a0604d2da131bcbbeb1f01badf0/public/assets/vendor/quaternius/night-striker.glb',
+ ual1:'https://cdn.jsdelivr.net/gh/richardanaya/metaverse-avatar@84fd636910bf713099010efbab7f3c84550f4bcb/anims/UAL1_Standard.glb',
+ ual2:'https://cdn.jsdelivr.net/gh/richardanaya/metaverse-avatar@84fd636910bf713099010efbab7f3c84550f4bcb/anims/UAL2_Standard.glb',
+ outfitKnight:'assets/characters/outfits/Male_Knight_Body_Armor.gltf',
+ outfitNoble:'assets/characters/outfits/Male_Noble_Body.gltf',
+ outfitWizard:'assets/characters/outfits/Male_Wizard_Body.gltf'
+};
 const dummyTarget=new T.Vector3();
 
 function bone(name,y){const b=new T.Bone();b.name=name;b.position.y=y;return b}
@@ -262,20 +281,13 @@ function makeRig(race,remote=false){
   const tunic=box(1.12,.5,.58,trim);tunic.position.y=.1;b.Hips.add(tunic);
   const head=sph(.42,skin);head.position.y=.22;b.Head.add(head);
   const face=sph(.405,skin);face.scale.z=1.04;face.position.set(0,.2,.02);b.Head.add(face);
-  // Eyes, brows and mouth create an expressive face instead of a blank primitive head.
-  for(const side of [-1,1]){
-    const e=sph(.052,eye);e.scale.z=.42;e.position.set(side*.14,.25,.38);b.Head.add(e);
-    const brow=box(.13,.028,.035,hair);brow.position.set(side*.14,.34,.37);brow.rotation.z=side*.12;b.Head.add(brow);
-  }
+  for(const side of [-1,1]){const e=sph(.052,eye);e.scale.z=.42;e.position.set(side*.14,.25,.38);b.Head.add(e);const brow=box(.13,.028,.035,hair);brow.position.set(side*.14,.34,.37);brow.rotation.z=side*.12;b.Head.add(brow)}
   const mouth=box(.16,.025,.025,MAT(0x6f2d3a,.5));mouth.position.set(0,.10,.39);b.Head.add(mouth);
   const cap=sph(.44,hair);cap.scale.set(1.04,.62,1.02);cap.position.y=.48;b.Head.add(cap);
-  for(let i=0;i<7;i++){const strand=mesh(new T.CapsuleGeometry(.055,.55,5,8),hair);strand.position.set((i-3)*.095,.43,.12+Math.abs(i-3)*.02);strand.rotation.z=(i-3)*.12;b.Head.add(strand)}
-  // Neck scarf, shoulder armor, gloves, boots, belt and pouches.
   const scarf=cyl(.24,.29,.16,trim,16);scarf.position.y=.02;b.Neck.add(scarf);
   for(const side of [-1,1]){
-    const p=side<0?'Left':'Right';
-    const shoulder=sph(.2,trim);shoulder.scale.set(1.25,.6,1);shoulder.position.y=-.02;b[p+'Shoulder'].add(shoulder);
-    const upper=box(.23,.6, .23,cloth);upper.position.y=-.3;b[p+'Shoulder'].add(upper);
+    const p=side<0?'Left':'Right';const shoulder=sph(.2,trim);shoulder.scale.set(1.25,.6,1);shoulder.position.y=-.02;b[p+'Shoulder'].add(shoulder);
+    const upper=box(.23,.6,.23,cloth);upper.position.y=-.3;b[p+'Shoulder'].add(upper);
     const fore=box(.21,.55,.21,skin);fore.position.y=-.28;b[p+'Elbow'].add(fore);
     const glove=sph(.15,skin);glove.position.y=-.28;b[p+'Hand'].add(glove);
     const leg=box(.3,.78,.3,cloth);leg.position.y=-.39;b[p+'Thigh'].add(leg);
@@ -287,20 +299,17 @@ function makeRig(race,remote=false){
   const sword=box(.10,1.55,.11,trim);sword.position.set(.16,-.65,.13);sword.rotation.z=-.15;b.RightHand.add(sword);
   const guard=box(.52,.08,.12,trim);guard.position.y=.1;b.RightHand.add(guard);
   const aura=mesh(new T.TorusGeometry(.78,.025,8,48),glowMat(c.glow));aura.rotation.x=Math.PI/2;aura.position.y=-1.02;root.add(aura);
-  if(race==='Demon')for(const side of [-1,1]){const h=cone(.13,.5,skin);h.rotation.z=side*.42;h.position.set(side*.22,.57,.02);b.Head.add(h)}
-  if(race==='Elf')for(const side of [-1,1]){const ear=mesh(new T.ConeGeometry(.10,.46,16),skin);ear.rotation.z=side*Math.PI/2;ear.position.set(side*.38,.04,.02);b.Head.add(ear)}
-  if(race==='Fairy')for(const side of [-1,1]){const wing=new T.Mesh(new T.CircleGeometry(.55,32),new T.MeshStandardMaterial({color:c.glow,transparent:true,opacity:.46,side:T.DoubleSide,emissive:c.glow,emissiveIntensity:1.4}));wing.scale.y=1.65;wing.position.set(side*.5,.35,-.18);wing.rotation.y=side*.5;b.Chest.add(wing)}
   root.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
   scene.add(root);
   const skeleton=new T.Skeleton(Object.values(b));
-  root.userData={race,bones:b,skeleton,remote,aura};
+  root.userData={race,bones:b,skeleton,remote,aura,imported:false};
   return {root,bones:b,skeleton};
 }
 
 function track(boneName,property,times,values){const node=String(boneName).split('.').pop();return new T.NumberKeyframeTrack(node+'.'+property,times,values)}
 function makeClips(rig){
-  const n=rig.root.name, t=[0,.25,.5,.75,1];
-  const clips=[
+  const n=rig.root.name,t=[0,.25,.5,.75,1];
+  return [
     new T.AnimationClip('Idle',2.2,[track(n+'.Spine','rotation[z]',[0,1.1,2.2],[0,.018,0]),track(n+'.Head','rotation[y]',[0,1.1,2.2],[0,.045,-.02])]),
     new T.AnimationClip('Walk',.9,[track(n+'.LeftThigh','rotation[x]',t,[.35,-.55,.35,-.55,.35]),track(n+'.RightThigh','rotation[x]',t,[-.35,.55,-.35,.55,-.35]),track(n+'.LeftShoulder','rotation[x]',t,[-.28,.35,-.28,.35,-.28]),track(n+'.RightShoulder','rotation[x]',t,[.28,-.35,.28,-.35,.28]),track(n+'.Spine','rotation[z]',t,[0,.025,0,-.025,0])]),
     new T.AnimationClip('Run',.55,[track(n+'.LeftThigh','rotation[x]',t,[.7,-.9,.7,-.9,.7]),track(n+'.RightThigh','rotation[x]',t,[-.7,.9,-.7,.9,-.7]),track(n+'.LeftShoulder','rotation[x]',t,[-.55,.7,-.55,.7,-.55]),track(n+'.RightShoulder','rotation[x]',t,[.55,-.7,.55,-.7,.55]),track(n+'.Spine','rotation[z]',t,[0,.05,0,-.05,0])]),
@@ -314,23 +323,162 @@ function makeClips(rig){
     new T.AnimationClip('Gesture',1.1,[track(n+'.RightShoulder','rotation[x]',[0,.3,.65,1.1],[0,-1.15,-.8,0]),track(n+'.RightElbow','rotation[x]',[0,.3,.65,1.1],[0,-.8,-1.1,0])]),
     new T.AnimationClip('Hit',.6,[track(n+'.Chest','rotation[x]',[0,.15,.6],[0,-.65,0]),track(n+'.Head','rotation[z]',[0,.15,.6],[0,.2,0])])
   ];
-  return clips;
+}
+function createImportedAccessories(model,race){
+  const cfg=raceCfg[race]||raceCfg.Hero;
+  const find=n=>model.getObjectByName(n);
+  const head=find('Head')||find('head')||model;
+  const chest=find('spine_03')||find('Spine')||model;
+  if(race==='Demon'){
+    for(const side of [-1,1]){
+      const horn=cone(.11,.48,MAT(cfg.trim,.4,.1),12);horn.position.set(side*.20,.52,0);horn.rotation.z=side*.42;head.add(horn);
+    }
+    const aura=mesh(new T.TorusGeometry(.48,.028,8,32),glowMat(cfg.glow));aura.position.set(0,-.75,0);aura.rotation.x=Math.PI/2;model.add(aura);
+  }
+  if(race==='Elf'){
+    for(const side of [-1,1]){const ear=mesh(new T.ConeGeometry(.09,.42,16),MAT(cfg.skin,.6));ear.rotation.z=side*Math.PI/2;ear.position.set(side*.39,.03,.02);head.add(ear)}
+  }
+  if(race==='Fairy'){
+    for(const side of [-1,1]){
+      const wing=new T.Mesh(new T.CircleGeometry(.5,32),new T.MeshStandardMaterial({color:cfg.glow,transparent:true,opacity:.48,side:T.DoubleSide,emissive:cfg.glow,emissiveIntensity:1.5}));
+      wing.scale.y=1.7;wing.position.set(side*.48,.35,-.18);wing.rotation.y=side*.5;chest.add(wing);
+    }
+    const halo=mesh(new T.TorusGeometry(.28,.018,8,32),glowMat(cfg.trim));halo.position.y=.66;head.add(halo);
+  }
+}
+function tintImportedModel(model,race){
+  const cfg=raceCfg[race]||raceCfg.Hero;
+  model.traverse(o=>{
+    if(!o.isMesh)return;
+    o.castShadow=true;o.receiveShadow=true;
+    if(Array.isArray(o.material))o.material=o.material.map(m=>m.clone());
+    else if(o.material)o.material=o.material.clone();
+    const mats=Array.isArray(o.material)?o.material:[o.material];
+    for(const m of mats){
+      if(!m||!m.color)continue;
+      if(race!=='Hero')m.color.multiply(new T.Color(cfg.tint));
+      m.roughness=Math.min(.92,Math.max(.32,m.roughness??.7));
+    }
+  });
+}
+function chooseClip(aliases){
+  const lower=new Map(importedAnimationClips.map(c=>[c.name.toLowerCase(),c]));
+  for(const name of aliases){const exact=lower.get(name.toLowerCase());if(exact)return exact}
+  for(const c of importedAnimationClips)if(aliases.some(a=>c.name.toLowerCase().includes(a.toLowerCase())))return c;
+  return null;
+}
+function configureImportedActions(actor,targetMixer){
+  const result={};
+  const aliases={
+    Idle:['Idle_Loop'],Walk:['Walk_Loop','Jog_Fwd_Loop'],Run:['Jog_Fwd_Loop','Sprint_Loop'],Sprint:['Sprint_Loop'],
+    Attack:['Sword_Attack','Punch_Cross'],Block:['Sword_Block','Shield_OneShot','Sword_Idle'],Dodge:['Roll'],
+    Jump:['Jump_Start','Jump_Loop'],Cast:['Spell_Simple_Shoot','Spell_Simple_Enter'],Special:['Sword_Regular_Combo','Sword_Attack','Punch_Cross'],
+    Talk:['Idle_Talking_Loop','Sitting_Talking_Loop'],Gesture:['Interact','Yes','Dance_Loop'],Hit:['Hit_Chest','Hit_Head','Hit_Knockback']
+  };
+  for(const [slot,names] of Object.entries(aliases)){const clip=chooseClip(names);if(clip){const a=targetMixer.clipAction(clip);a.clampWhenFinished=!['Idle','Walk','Run','Sprint'].includes(slot);a.loop=['Idle','Walk','Run','Sprint'].includes(slot)?T.LoopRepeat:T.LoopOnce;result[slot]=a}}
+  if(!result.Idle){const clip=makeClips(actor).find(x=>x.name==='Idle');result.Idle=targetMixer.clipAction(clip);result.Idle.loop=T.LoopRepeat}
+  return result;
+}
+function syncOutfitSkeleton(root){
+  const outfit=root.userData?.outfitModel,base=root.userData?.importedModel;if(!outfit||!base)return;
+  const baseBones=new Map();base.traverse(o=>{if(o.isBone)baseBones.set(o.name,o)});
+  outfit.traverse(o=>{if(o.isBone){const b=baseBones.get(o.name);if(b){o.position.copy(b.position);o.quaternion.copy(b.quaternion);o.scale.copy(b.scale)}}});
+}
+function attachKnightOutfit(root,race){
+  const source=outfitSources[race]||outfitSources.Hero;if(!source?.scene)return;
+  if(root.userData.outfitModel)root.remove(root.userData.outfitModel);
+  const outfit=window.AAsmaSkeletonUtils.clone(source.scene);
+  const base=root.userData.importedModel;
+  const box=new T.Box3().setFromObject(base),size=box.getSize(new T.Vector3());
+  const scale=2.75/Math.max(.001,size.y);outfit.scale.setScalar(scale);outfit.rotation.copy(base.rotation);outfit.position.copy(base.position);
+  const cfg=raceCfg[race]||raceCfg.Hero;
+  outfit.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material=o.material.clone();o.material.color?.setHex(cfg.cloth);if(o.material.metalness!==undefined)o.material.metalness=.55;if(o.material.roughness!==undefined)o.material.roughness=.4}}});
+  root.add(outfit);root.userData.outfitModel=outfit;syncOutfitSkeleton(root);
+}
+function clearVisualChildren(root,aura){
+  for(const child of [...root.children])if(child!==aura){root.remove(child);child.traverse(o=>{if(o.isMesh){o.geometry?.dispose?.();if(o.material?.dispose)o.material.dispose()}})}
+}
+function installImportedCharacter(actor,race,isRemote=false){
+  if(!importedCharacterSource||!window.AAsmaSkeletonUtils)return false;
+  const root=actor.root,aura=root.userData.aura;
+  clearVisualChildren(root,aura);
+  const model=window.AAsmaSkeletonUtils.clone(importedCharacterSource.scene);
+  const box3=new T.Box3().setFromObject(model),size=box3.getSize(new T.Vector3());
+  const scale=2.75/Math.max(.001,size.y);
+  model.scale.setScalar(scale);
+  model.position.y=-box3.min.y*scale;
+  model.rotation.y=Math.PI;
+  tintImportedModel(model,race);createImportedAccessories(model,race);
+  root.add(model);
+  root.userData.imported=true;root.userData.importedModel=model;root.userData.race=race;
+  if(outfitSources.Hero)attachKnightOutfit(root,race);
+  const targetMixer=new T.AnimationMixer(root);
+  const targetActions=configureImportedActions(actor,targetMixer);
+  if(isRemote){
+    if(remoteMixer)remoteMixer.stopAllAction();
+    remoteMixer=targetMixer;remoteActions=targetActions;remoteActiveAction=remoteActions.Idle;remoteAnimName='Idle';
+    remoteActiveAction.reset().play();
+  }else{
+    if(mixer)mixer.stopAllAction();
+    mixer=targetMixer;actions=targetActions;activeAction=actions.Idle;animName='Idle';
+    activeAction.reset().play();
+  }
+  const rigText=document.querySelector('#charHud .hudbox:nth-child(2)');
+  if(rigText&&!isRemote)rigText.innerHTML='Rig: <b>Quaternius Humanoid</b><br>Animation: <b>43+ CC0 clips loaded</b>';
+  return true;
+}
+function playRemote(name,cross=.12){
+  const next=remoteActions[name]||remoteActions.Idle;if(!next)return;
+  if(remoteActiveAction===next)return;
+  if(remoteActiveAction)remoteActiveAction.fadeOut(cross);
+  next.reset().fadeIn(cross).play();remoteActiveAction=next;remoteAnimName=name;
 }
 function setupPlayer(){
   player=makeRig(selectedRace,false);mixer=new T.AnimationMixer(player.root);
   for(const clip of makeClips(player)){const a=mixer.clipAction(clip);a.clampWhenFinished=clip.name!=='Idle';a.loop=clip.name==='Idle'||clip.name==='Walk'||clip.name==='Run'?T.LoopRepeat:T.LoopOnce;actions[clip.name]=a}
   play('Idle',0);
+  if(importedReady)installImportedCharacter(player,selectedRace);
 }
-function setupRemote(){remotePlayer=makeRig('Demon',true);remotePlayer.root.visible=false}
+function setupRemote(){remotePlayer=makeRig('Demon',true);remotePlayer.root.visible=false;if(importedReady)installImportedCharacter(remotePlayer,'Demon',true)}
 function play(name,cross=.18){
-  const next=actions[name]||actions.Idle;if(activeAction===next)return;
-  if(activeAction)activeAction.fadeOut(cross);next.reset().fadeIn(cross).play();activeAction=next;animName=name;animClock=0;
-  const el=document.getElementById('animState');if(el)el.textContent=name;
+  const next=actions[name]||actions.Idle;if(!next)return;
+  if(activeAction===next)return;
+  if(activeAction)activeAction.fadeOut(cross);
+  next.reset().fadeIn(cross).play();activeAction=next;animName=name;animClock=0;
+  const el=document.getElementById('animState');if(el)el.textContent=name+(importedReady&&player?.root?.userData?.imported?' · imported':' · fallback');
 }
-function animateAction(name){play(name,.08)}
-function setRace(r){selectedRace=r;scene.remove(player.root);actions={};activeAction=null;setupPlayer();document.getElementById('raceName').textContent=r;document.querySelectorAll('[data-race]').forEach(x=>x.classList.toggle('active',x.dataset.race===r))}
+function animateAction(name){play(name,.12)}
+function setRace(r){
+  selectedRace=r;scene.remove(player.root);actions={};activeAction=null;setupPlayer();
+  document.getElementById('raceName').textContent=r;
+  document.querySelectorAll('[data-race]').forEach(x=>x.classList.toggle('active',x.dataset.race===r));
+}
+function loadImportedAssets(){
+  if(importedReady||importedCharacterSource||!window.AAsmaGLTFLoader)return;
+  const Loader=window.AAsmaGLTFLoader,loader=new Loader();
+  const load=url=>new Promise((resolve,reject)=>loader.load(url,resolve,undefined,reject));
+  Promise.all([load(ASSET_URLS.character),load(ASSET_URLS.ual1),load(ASSET_URLS.ual2),load(ASSET_URLS.outfitKnight),load(ASSET_URLS.outfitNoble),load(ASSET_URLS.outfitWizard)]).then(([character,ual1,ual2,knight,noble,wizard])=>{
+    importedCharacterSource=character;
+    importedAnimationClips=[...(ual1.animations||[]),...(ual2.animations||[])];
+    outfitSources={Hero:noble,Demon:knight,Elf:knight,Fairy:wizard};
+    window.__AASMA_OUTFIT_READY__=true;
+    importedReady=true;
+    window.__AASMA_IMPORTED_ASSET_READY__=true;
+    installImportedCharacter(player,selectedRace);
+    installImportedCharacter(remotePlayer,'Demon',true);
+    document.getElementById('animState').textContent='Idle · imported Quaternius rig';
+    document.getElementById('pvpStatus').textContent='3D rig + CC0 animation library loaded · online PvP ready';
+  }).catch(err=>{
+    importedLoadError=String(err?.message||err);
+    window.__AASMA_IMPORTED_ASSET_READY__=false;window.__AASMA_OUTFIT_READY__=false;window.__AASMA_IMPORT_ERROR__=importedLoadError;
+    document.getElementById('animState').textContent='Idle · procedural fallback (asset load failed)';
+    document.getElementById('pvpStatus').textContent='Asset CDN unavailable · procedural fallback active';
+    console.warn('AAsma imported asset load failed',err);
+  });
+}
 setupPlayer();setupRemote();
-
+window.addEventListener('AAsmaGLTFReady',loadImportedAssets,{once:true});
+if(window.AAsmaGLTFLoader)loadImportedAssets();
 const particles=new T.Group();particles.name='MagicParticles';scene.add(particles);
 function burst(color,count=28){
   for(let i=0;i<count;i++){const p=mesh(new T.SphereGeometry(.035+.025*Math.random(),8,8),glowMat(color));p.position.copy(player.root.position);p.position.y+=1.1;const v=new T.Vector3((Math.random()-.5)*2,(Math.random())*2,(Math.random()-.5)*2);p.userData.v=v;p.userData.life=.8+Math.random()*.7;particles.add(p)}
@@ -371,7 +519,7 @@ async function connectPvP(){
 function wireConn(){
   if(!conn)return;const status=document.getElementById('pvpStatus');
   conn.on('open',()=>{status.textContent='⚔ Opponent connected · REAL PLAYER VS PLAYER';remotePlayer.root.visible=true;conn.send({type:'hello',race:selectedRace})});
-  conn.on('data',d=>{if(!d)return;if(d.type==='state'){remotePlayer.root.position.set(d.x,d.y,d.z);remotePlayer.root.rotation.y=d.r;remotePlayer.root.visible=true;if(d.anim){const clip=makeClips(remotePlayer).find(c=>c.name===d.anim);if(clip){/* remote rig uses explicit clip data; visual state is mirrored below */remotePlayer.root.userData.lastAnim=d.anim}}}if(d.type==='race'){remotePlayer.root.visible=true}});
+  conn.on('data',d=>{if(!d)return;if(d.type==='state'){remotePlayer.root.position.set(d.x,d.y,d.z);remotePlayer.root.rotation.y=d.r;remotePlayer.root.visible=true;if(d.anim){remotePlayer.root.userData.lastAnim=d.anim;playRemote(d.anim)}}if(d.type==='race'){remotePlayer.root.visible=true}});
   conn.on('close',()=>{status.textContent='Opponent disconnected · Arena open';remotePlayer.root.visible=false});
 }
 document.getElementById('pvpConnect').onclick=connectPvP;
@@ -389,7 +537,7 @@ function animate(){
   if(keys.d||keys.arrowright){move('right',dt*5.8);moving=true}
   if(moving&&(!activeAction||activeAction.isRunning()===false||animName==='Idle'||animName==='Walk'||animName==='Run'))play(keys.shift?'Run':'Walk',.14);
   else if(!moving&&(animName==='Walk'||animName==='Run'))play('Idle',.18);
-  if(mixer)mixer.update(dt);
+  if(mixer)mixer.update(dt);if(remoteMixer)remoteMixer.update(dt);syncOutfitSkeleton(player.root);if(remotePlayer?.root?.visible)syncOutfitSkeleton(remotePlayer.root);
   updateParticles(dt);
   player.root.userData.aura.rotation.z+=dt*.7;
   if(activeAction&&activeAction.loop===T.LoopOnce&&activeAction.time>=activeAction.getClip().duration-.03)play('Idle',.12);

@@ -1,7 +1,7 @@
 name: 3D Game Validation
 on:
   push:
-    branches: [main, feature/full-character-animation-combat]
+    branches: [main, feature/full-character-animation-combat, feature/professional-characters-assets]
   pull_request:
     branches: [main]
 jobs:
@@ -17,12 +17,19 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const html=fs.readFileSync('index.html','utf8');
-          const scripts=[...html.matchAll(/<script(?:[^>]*)>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(s=>s.trim());
-          for (let i=0;i<scripts.length;i++) {
-            try { new Function(scripts[i]); console.log('script',i,'syntax OK'); }
-            catch(e) { console.error('script',i,e); process.exitCode=1; }
+          const matches=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)];
+          for (let i=0;i<matches.length;i++) {
+            const attrs=matches[i][1]||'',code=matches[i][2];
+            if(!code.trim()) continue;
+            try {
+              if(/type=["'](?:module|importmap)["']/i.test(attrs)){
+                console.log('module script',i,'deferred to browser smoke test');
+              }else{
+                new Function(code);console.log('script',i,'syntax OK');
+              }
+            } catch(e) { console.error('script',i,e.stdout?.toString()||e.stderr?.toString()||e); process.exitCode=1; }
           }
-          if (!html.includes('three@0.160.0') || !html.includes('new T.Skeleton')) process.exitCode=1;
+          if (!html.includes('three@0.160.0') || !html.includes('new T.Skeleton') || !html.includes('AAsmaGLTFLoader') || !html.includes('Quaternius') || !html.includes('assets/characters/outfits/Male_Knight_Body_Armor.gltf') || !html.includes('assets/characters/outfits/Male_Noble_Body.gltf') || !html.includes('assets/characters/outfits/Male_Wizard_Body.gltf')) process.exitCode=1;
           NODE
       - name: Browser smoke test
         run: |
@@ -40,14 +47,30 @@ jobs:
             p.on('pageerror',e=>errors.push(String(e)));
             await p.goto('http://127.0.0.1:4173/index.html',{waitUntil:'networkidle',timeout:30000});
             await p.waitForSelector('#threeCanvas');
-            await p.click('[data-race="Demon"]');
-            await p.click('[data-anim="attack"]');
-            await p.click('[data-anim="cast"]');
-            await p.click('[data-anim="block"]');
+            await p.waitForFunction(()=>window.__AASMA_IMPORTED_ASSET_READY__===true && window.__AASMA_OUTFIT_READY__===true,{timeout:30000}).catch(async e=>{throw new Error('Asset readiness failed: imported='+await p.evaluate(()=>window.__AASMA_IMPORTED_ASSET_READY__)+' outfit='+await p.evaluate(()=>window.__AASMA_OUTFIT_READY__)+' loadError='+await p.evaluate(()=>window.__AASMA_IMPORT_ERROR__||'n/a')+' status='+await p.locator('#pvpStatus').textContent());});
+            for (const race of ['Hero','Demon','Elf','Fairy']) {
+              await p.click('[data-race="'+race+'"]');
+              await p.waitForTimeout(250);
+              await p.screenshot({path:'aasma-character-preview-'+race.toLowerCase()+'.png',fullPage:true});
+            }
+            for (const anim of ['attack','cast','block','dodge','special','jump','talk','gesture','hit']) {
+              await p.click('[data-anim="'+anim+'"]');
+              await p.waitForTimeout(120);
+            }
             await p.click('[data-move="forward"]');
+            const animState=await p.locator('#animState').textContent();
+            if(!animState || !animState.includes('imported')) throw new Error('Imported character pipeline did not become active: '+animState);
             if(errors.length){console.error(errors.join('\n'));process.exit(1)}
-            console.log('Browser smoke test OK');
+            console.log('Browser smoke test OK: imported GLB + all four race variants + animation controls active');
             await b.close();
           })();
           NODE
           kill $SERVER || true
+
+      - name: Upload character preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aasma-character-preview
+          path: aasma-character-preview-*.png
+          if-no-files-found: ignore
