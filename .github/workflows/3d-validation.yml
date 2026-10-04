@@ -29,7 +29,7 @@ jobs:
               }
             } catch(e) { console.error('script',i,e.stdout?.toString()||e.stderr?.toString()||e); process.exitCode=1; }
           }
-          if (!html.includes('three@0.160.0') || !html.includes('new T.Skeleton') || !html.includes('AAsmaGLTFLoader') || !html.includes('Quaternius') || !html.includes('assets/characters/outfits/Male_Knight_Body_Armor.gltf')) process.exitCode=1;
+          if (!html.includes('three@0.160.0') || !html.includes('new T.Skeleton') || !html.includes('AAsmaGLTFLoader') || !html.includes('Quaternius') || !html.includes('assets/characters/outfits/Male_Knight_Body_Armor.gltf') || !html.includes('assets/characters/outfits/Male_Noble_Body.gltf') || !html.includes('assets/characters/outfits/Male_Wizard_Body.gltf')) process.exitCode=1;
           NODE
       - name: Browser smoke test
         run: |
