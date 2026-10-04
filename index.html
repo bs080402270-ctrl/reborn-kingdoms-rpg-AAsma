@@ -181,7 +181,7 @@ function makeCharacter(race='Hero'){
  root.userData={race,bones,skeleton:skel,weapon,aura};
  scene.add(root);character={root,bones,race}; applyPose('idle',0); return character;
 }
-function resetBones(){if(!character)return;const b=character.bones;const base={Hips:1.05,Spine:.25,Chest:.75,Neck:.58,Head:.25};for(const k of Object.keys(b)){b[k].rotation.set(0,0,0);b[k].position.y=base[k]??(/Shoulder/.test(k)?.38:/Elbow/.test(k)?-.62:/Hand/.test(k)?-.58:/Thigh/.test(k)?-.08:/Knee/.test(k)?-.82:/Foot/.test(k)?-.75:0)}}}
+function resetBones(){if(!character)return;const b=character.bones;const base={Hips:1.05,Spine:.25,Chest:.75,Neck:.58,Head:.25};for(const k of Object.keys(b)){b[k].rotation.set(0,0,0);let y=base[k];if(y===undefined){if(/Shoulder/.test(k))y=.38;else if(/Elbow/.test(k))y=-.62;else if(/Hand/.test(k))y=-.58;else if(/Thigh/.test(k))y=-.08;else if(/Knee/.test(k))y=-.82;else if(/Foot/.test(k))y=-.75;else y=0;}b[k].position.y=y}}
 function applyPose(s,t){if(!character)return;state=s;document.getElementById('animState').textContent=s.replace(/^./,x=>x.toUpperCase());const b=character.bones;resetBones();const wave=Math.sin(t*8),step=Math.sin(t*10),fast=Math.sin(t*16);
  if(s==='idle'){b.Spine.rotation.z=Math.sin(t*1.5)*.015;b.Head.rotation.y=Math.sin(t*1.2)*.04}
  if(s==='walk'||s==='run'){const f=s==='run'?1.7:1; b.LeftThigh.rotation.x=step*.55*f;b.RightThigh.rotation.x=-step*.55*f;b.LeftKnee.rotation.x=Math.max(0,-step)*.35*f;b.RightKnee.rotation.x=Math.max(0,step)*.35*f;b.LeftShoulder.rotation.x=-step*.35*f;b.RightShoulder.rotation.x=step*.35*f;b.Spine.rotation.z=Math.sin(t*5)*.035}
