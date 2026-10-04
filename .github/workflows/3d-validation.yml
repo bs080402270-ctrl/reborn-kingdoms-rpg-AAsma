@@ -47,7 +47,7 @@ jobs:
             p.on('pageerror',e=>errors.push(String(e)));
             await p.goto('http://127.0.0.1:4173/index.html',{waitUntil:'networkidle',timeout:30000});
             await p.waitForSelector('#threeCanvas');
-            await p.waitForFunction(()=>window.__AASMA_IMPORTED_ASSET_READY__===true && window.__AASMA_OUTFIT_READY__===true,{timeout:30000}).catch(async e=>{throw new Error('Asset readiness failed: imported='+await p.evaluate(()=>window.__AASMA_IMPORTED_ASSET_READY__)+' outfit='+await p.evaluate(()=>window.__AASMA_OUTFIT_READY__)+' loadError='+await p.evaluate(()=>window.importedLoadError||'n/a')+' status='+await p.locator('#pvpStatus').textContent());});
+            await p.waitForFunction(()=>window.__AASMA_IMPORTED_ASSET_READY__===true && window.__AASMA_OUTFIT_READY__===true,{timeout:30000}).catch(async e=>{throw new Error('Asset readiness failed: imported='+await p.evaluate(()=>window.__AASMA_IMPORTED_ASSET_READY__)+' outfit='+await p.evaluate(()=>window.__AASMA_OUTFIT_READY__)+' loadError='+await p.evaluate(()=>window.__AASMA_IMPORT_ERROR__||'n/a')+' status='+await p.locator('#pvpStatus').textContent());});
             for (const race of ['Hero','Demon','Elf','Fairy']) {
               await p.click('[data-race="'+race+'"]');
               await p.waitForTimeout(250);
