@@ -248,6 +248,7 @@ const raceCfg={
 const bonesNames=['Hips','Spine','Chest','Neck','Head','LeftShoulder','LeftElbow','LeftHand','RightShoulder','RightElbow','RightHand','LeftThigh','LeftKnee','LeftFoot','RightThigh','RightKnee','RightFoot'];
 let player,remotePlayer,selectedRace='Hero',mixer,actions={},activeAction,animName='Idle',animClock=0,playerVelocity=new T.Vector3();
 let importedCharacterSource=null, importedAnimationClips=[], importedReady=false, importedLoadError='';
+let remoteMixer=null,remoteActions={},remoteActiveAction=null,remoteAnimName='Idle';
 let importedAssetVersion='Quaternius CC0';
 const ASSET_URLS={
  character:'https://cdn.jsdelivr.net/gh/Seyamalam/blood-league-kickoff@aa02a4e6d8337a0604d2da131bcbbeb1f01badf0/public/assets/vendor/quaternius/night-striker.glb',
@@ -361,21 +362,22 @@ function chooseClip(aliases){
   for(const c of importedAnimationClips)if(aliases.some(a=>c.name.toLowerCase().includes(a.toLowerCase())))return c;
   return null;
 }
-function configureImportedActions(actor){
-  actions={};
+function configureImportedActions(actor,targetMixer){
+  const result={};
   const aliases={
     Idle:['Idle_Loop'],Walk:['Walk_Loop','Jog_Fwd_Loop'],Run:['Jog_Fwd_Loop','Sprint_Loop'],Sprint:['Sprint_Loop'],
     Attack:['Sword_Attack','Punch_Cross'],Block:['Sword_Block','Shield_OneShot','Sword_Idle'],Dodge:['Roll'],
     Jump:['Jump_Start','Jump_Loop'],Cast:['Spell_Simple_Shoot','Spell_Simple_Enter'],Special:['Sword_Regular_Combo','Sword_Attack','Punch_Cross'],
     Talk:['Idle_Talking_Loop','Sitting_Talking_Loop'],Gesture:['Interact','Yes','Dance_Loop'],Hit:['Hit_Chest','Hit_Head','Hit_Knockback']
   };
-  for(const [slot,names] of Object.entries(aliases)){const clip=chooseClip(names);if(clip){const a=mixer.clipAction(clip);a.clampWhenFinished=!['Idle','Walk','Run','Sprint'].includes(slot);a.loop=['Idle','Walk','Run','Sprint'].includes(slot)?T.LoopRepeat:T.LoopOnce;actions[slot]=a}}
-  if(!actions.Idle){const clip=makeClips(actor).find(x=>x.name==='Idle');actions.Idle=mixer.clipAction(clip);actions.Idle.loop=T.LoopRepeat}
+  for(const [slot,names] of Object.entries(aliases)){const clip=chooseClip(names);if(clip){const a=targetMixer.clipAction(clip);a.clampWhenFinished=!['Idle','Walk','Run','Sprint'].includes(slot);a.loop=['Idle','Walk','Run','Sprint'].includes(slot)?T.LoopRepeat:T.LoopOnce;result[slot]=a}}
+  if(!result.Idle){const clip=makeClips(actor).find(x=>x.name==='Idle');result.Idle=targetMixer.clipAction(clip);result.Idle.loop=T.LoopRepeat}
+  return result;
 }
 function clearVisualChildren(root,aura){
   for(const child of [...root.children])if(child!==aura){root.remove(child);child.traverse(o=>{if(o.isMesh){o.geometry?.dispose?.();if(o.material?.dispose)o.material.dispose()}})}
 }
-function installImportedCharacter(actor,race){
+function installImportedCharacter(actor,race,isRemote=false){
   if(!importedCharacterSource||!window.AAsmaSkeletonUtils)return false;
   const root=actor.root,aura=root.userData.aura;
   clearVisualChildren(root,aura);
@@ -388,14 +390,26 @@ function installImportedCharacter(actor,race){
   tintImportedModel(model,race);createImportedAccessories(model,race);
   root.add(model);
   root.userData.imported=true;root.userData.importedModel=model;root.userData.race=race;
-  if(mixer)mixer.stopAllAction();
-  mixer=new T.AnimationMixer(root);
-  configureImportedActions(actor);
-  play('Idle',0);
-  const rigEl=document.querySelector('#combatHud')?.previousElementSibling;
+  const targetMixer=new T.AnimationMixer(root);
+  const targetActions=configureImportedActions(actor,targetMixer);
+  if(isRemote){
+    if(remoteMixer)remoteMixer.stopAllAction();
+    remoteMixer=targetMixer;remoteActions=targetActions;remoteActiveAction=remoteActions.Idle;remoteAnimName='Idle';
+    remoteActiveAction.reset().play();
+  }else{
+    if(mixer)mixer.stopAllAction();
+    mixer=targetMixer;actions=targetActions;activeAction=actions.Idle;animName='Idle';
+    activeAction.reset().play();
+  }
   const rigText=document.querySelector('#charHud .hudbox:nth-child(2)');
-  if(rigText)rigText.innerHTML='Rig: <b>Quaternius Humanoid</b><br>Animation: <b>120+ CC0 clips available</b>';
+  if(rigText&&!isRemote)rigText.innerHTML='Rig: <b>Quaternius Humanoid</b><br>Animation: <b>43+ CC0 clips loaded</b>';
   return true;
+}
+function playRemote(name,cross=.12){
+  const next=remoteActions[name]||remoteActions.Idle;if(!next)return;
+  if(remoteActiveAction===next)return;
+  if(remoteActiveAction)remoteActiveAction.fadeOut(cross);
+  next.reset().fadeIn(cross).play();remoteActiveAction=next;remoteAnimName=name;
 }
 function setupPlayer(){
   player=makeRig(selectedRace,false);mixer=new T.AnimationMixer(player.root);
@@ -403,7 +417,7 @@ function setupPlayer(){
   play('Idle',0);
   if(importedReady)installImportedCharacter(player,selectedRace);
 }
-function setupRemote(){remotePlayer=makeRig('Demon',true);remotePlayer.root.visible=false;if(importedReady)installImportedCharacter(remotePlayer,'Demon')}
+function setupRemote(){remotePlayer=makeRig('Demon',true);remotePlayer.root.visible=false;if(importedReady)installImportedCharacter(remotePlayer,'Demon',true)}
 function play(name,cross=.18){
   const next=actions[name]||actions.Idle;if(!next)return;
   if(activeAction===next)return;
@@ -426,7 +440,7 @@ function loadImportedAssets(){
     importedAnimationClips=[...(ual1.animations||[]),...(ual2.animations||[])];
     importedReady=true;
     installImportedCharacter(player,selectedRace);
-    installImportedCharacter(remotePlayer,'Demon');
+    installImportedCharacter(remotePlayer,'Demon',true);
     document.getElementById('animState').textContent='Idle · imported Quaternius rig';
     document.getElementById('pvpStatus').textContent='3D rig + CC0 animation library loaded · online PvP ready';
   }).catch(err=>{
@@ -479,7 +493,7 @@ async function connectPvP(){
 function wireConn(){
   if(!conn)return;const status=document.getElementById('pvpStatus');
   conn.on('open',()=>{status.textContent='⚔ Opponent connected · REAL PLAYER VS PLAYER';remotePlayer.root.visible=true;conn.send({type:'hello',race:selectedRace})});
-  conn.on('data',d=>{if(!d)return;if(d.type==='state'){remotePlayer.root.position.set(d.x,d.y,d.z);remotePlayer.root.rotation.y=d.r;remotePlayer.root.visible=true;if(d.anim){const clip=makeClips(remotePlayer).find(c=>c.name===d.anim);if(clip){/* remote rig uses explicit clip data; visual state is mirrored below */remotePlayer.root.userData.lastAnim=d.anim}}}if(d.type==='race'){remotePlayer.root.visible=true}});
+  conn.on('data',d=>{if(!d)return;if(d.type==='state'){remotePlayer.root.position.set(d.x,d.y,d.z);remotePlayer.root.rotation.y=d.r;remotePlayer.root.visible=true;if(d.anim){remotePlayer.root.userData.lastAnim=d.anim;playRemote(d.anim)}}if(d.type==='race'){remotePlayer.root.visible=true}});
   conn.on('close',()=>{status.textContent='Opponent disconnected · Arena open';remotePlayer.root.visible=false});
 }
 document.getElementById('pvpConnect').onclick=connectPvP;
@@ -497,7 +511,7 @@ function animate(){
   if(keys.d||keys.arrowright){move('right',dt*5.8);moving=true}
   if(moving&&(!activeAction||activeAction.isRunning()===false||animName==='Idle'||animName==='Walk'||animName==='Run'))play(keys.shift?'Run':'Walk',.14);
   else if(!moving&&(animName==='Walk'||animName==='Run'))play('Idle',.18);
-  if(mixer)mixer.update(dt);
+  if(mixer)mixer.update(dt);if(remoteMixer)remoteMixer.update(dt);
   updateParticles(dt);
   player.root.userData.aura.rotation.z+=dt*.7;
   if(activeAction&&activeAction.loop===T.LoopOnce&&activeAction.time>=activeAction.getClip().duration-.03)play('Idle',.12);
