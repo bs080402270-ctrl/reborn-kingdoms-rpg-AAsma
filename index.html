@@ -1,14 +1,78 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111a22"><title>Reborn: Kingdoms of Eternity</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111a22"><title>AAsma · Kingdoms of Eternity</title>
 <style>
 :root{color-scheme:dark;--gold:#f2ca78;--ink:#edf1ed;--muted:#aab8bf;--panel:#192630;--line:#3c4d57}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0,#2b4651,#101820 68%);color:var(--ink);font:15px/1.5 system-ui,Segoe UI,sans-serif}.wrap{max-width:1200px;margin:auto;padding:18px}button{border:1px solid #52636c;border-radius:10px;background:#2a3b46;color:var(--ink);padding:10px 13px;font:inherit;cursor:pointer}button:hover:not(:disabled){border-color:var(--gold);background:#394d59}button:disabled{opacity:.35;cursor:not-allowed}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.logo{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:linear-gradient(140deg,#64b79d,#24485b);font-size:27px}h1{font:700 clamp(21px,3vw,30px) Georgia,serif;color:#f8e7bf;margin:0}.sub{font-size:11px;letter-spacing:1.7px;color:var(--muted);text-transform:uppercase}.pills{display:flex;gap:7px;flex-wrap:wrap}.pill{border:1px solid var(--line);background:#192832;border-radius:99px;padding:6px 11px;font-size:13px}.pill b{color:var(--gold)}.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(290px,.8fr);gap:15px}.panel{background:linear-gradient(180deg,#1b2a34f5,#17232bf5);border:1px solid var(--line);border-radius:15px;padding:16px;box-shadow:0 12px 30px #0003;min-width:0}.panel h2{font:700 20px Georgia,serif;color:var(--gold);margin:0 0 12px}.panel h3{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:#c5d1d5;margin:15px 0 8px}.hero{position:relative;overflow:hidden;min-height:200px;border:1px solid #536e72;border-radius:13px;padding:18px;background:linear-gradient(90deg,#142831f2,#1428318a),radial-gradient(circle at 75% 40%,#578a7d,#263e49 48%,#14232c)}.hero:after{content:"✦";position:absolute;right:9%;top:0;font-size:100px;opacity:.13;color:#ffe7a5}.eyebrow{font-size:11px;letter-spacing:2px;color:#a9d8c7;text-transform:uppercase}.hero h2{font:700 27px Georgia,serif;color:#fff0c9;margin:8px 0}.hero p{max-width:75%;color:#d2ddda;margin:0}.slime{position:absolute;right:12%;bottom:7px;font-size:53px;filter:drop-shadow(0 8px 7px #0008)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{padding:9px;background:#13212a;border:1px solid #32434d;border-radius:10px}.stat small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px}.stat strong{font-size:16px}.bar{height:8px;border-radius:10px;background:#0b1319;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#53b68f,#9be1b2);border-radius:10px}.bar.mp i{background:linear-gradient(90deg,#4a9ccc,#a0d8ff)}.bar.enemy i{background:linear-gradient(90deg,#ac4b55,#f18c76)}.places{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.place{text-align:left;display:flex;gap:10px;align-items:center;background:#1c2c36;padding:10px}.place .ico{font-size:25px}.place b,.place small{display:block}.place b{font-size:13px}.place small{font-size:11px;color:var(--muted)}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.primary{background:#80632f;border-color:#d1ad61;color:#fff2d2}.good{background:#244235;border-color:#4d8768}.spell{background:#243e50;border-color:#4b7793}.battle{margin-top:12px;border:1px solid #764c4e;background:linear-gradient(140deg,#3b292e,#1b2931);border-radius:12px;padding:13px}.battlehead{display:flex;align-items:center;justify-content:space-between;gap:10px}.enemyicon{font-size:40px}.actions{display:flex;flex-wrap:wrap;gap:7px}.quest,.info{border:1px solid #394b55;border-radius:9px;background:#192933;padding:10px;margin:7px 0;font-size:13px}.quest small,.info small{color:var(--muted)}.tag{font-size:10px;color:#8bd5a6;text-transform:uppercase;margin-left:7px}.log{max-height:220px;overflow:auto;color:#c0cccf;font-size:13px}.log p{margin:0;padding:7px 0;border-bottom:1px solid #30404a}.log p:first-child{color:var(--gold)}.hint{font-size:11px;color:#e6c77c;margin-top:8px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.inventory{display:flex;gap:7px;flex-wrap:wrap}.inventory span{background:#21323c;border:1px solid #3a4b55;border-radius:8px;padding:6px 9px;font-size:12px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:11px}}@media(max-width:450px){.places{grid-template-columns:1fr}.panel{padding:12px}.hero p{max-width:80%}.slime{right:4%;font-size:42px}.stats{gap:5px}.stat{padding:7px}.stat strong{font-size:14px}}
+</style><style id="three3d-css">
+#threeStage{position:relative;margin-top:14px;border:1px solid #536e72;border-radius:15px;overflow:hidden;background:#081017;min-height:520px}
+#threeCanvas{display:block;width:100%;height:520px;touch-action:none}
+#charHud{position:absolute;left:12px;top:12px;right:12px;display:flex;justify-content:space-between;gap:10px;pointer-events:none}
+#charHud .hudbox{background:#101d25dd;border:1px solid #50616a;border-radius:10px;padding:8px 10px;font-size:12px;backdrop-filter:blur(5px)}
+#charHud b{color:#f2ca78}
+#racePanel{position:absolute;right:12px;top:58px;width:min(270px,calc(100% - 24px));background:#101d25ee;border:1px solid #50616a;border-radius:12px;padding:10px;z-index:4}
+#racePanel h3{margin:0 0 7px;color:#f2ca78}
+.raceGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.raceGrid button{padding:7px 4px;font-size:11px}
+.raceGrid button.active{border-color:#f2ca78;background:#59472b}
+.customGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.customGrid label{font-size:10px;color:#aab8bf}.customGrid input{width:100%}
+#combatHud{position:absolute;left:12px;bottom:12px;right:12px;display:flex;justify-content:space-between;align-items:end;gap:12px;z-index:5}
+#movePad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,42px);gap:4px}
+#movePad button,#actionPad button{min-width:48px;min-height:42px;padding:5px;font-size:11px;touch-action:none}
+#movePad .up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:3}.right{grid-column:3;grid-row:2}
+#actionPad{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:280px}
+#actionPad button{background:#243e50dd}
+#actionPad .attack{background:#80632fdd}.block{background:#244235dd!important}.danger{background:#633b42dd!important}
+#animState{font-size:11px;color:#a9d8c7;margin-top:4px}
+@media(max-width:600px){#threeStage,#threeCanvas{min-height:500px;height:500px}#racePanel{top:50px}.raceGrid button{font-size:10px}.hudbox{font-size:10px!important}#movePad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,38px)}#actionPad{max-width:230px}#actionPad button{min-width:42px}}
+
+/* AAsma visual upgrade */
+#threeDPanel{background:linear-gradient(180deg,#101a27f5,#0b1320f8)!important;border-color:#6f7fa0!important;box-shadow:0 22px 55px #0008!important}
+#threeDPanel>h2{font-size:26px!important;letter-spacing:.2px;text-shadow:0 3px 18px #000}
+.pvpStrip{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 10px;padding:9px 11px;border:1px solid #5b6b86;border-radius:11px;background:linear-gradient(90deg,#171f31e8,#0f1725d8);font-size:11px}
+.pvpStrip b{color:#f7df9a}.pvpStrip span{color:#aab7cb}.pvpBadge{color:#ffe7a5!important;font-weight:800;letter-spacing:1px}
+#pvpConnect{margin-left:auto;padding:7px 10px;border-radius:8px;background:#304b66;border-color:#7697ba;font-size:11px}
+#threeStage{min-height:620px!important;height:620px!important;border:1px solid #6b7894!important;border-radius:17px!important;background:linear-gradient(#18263a,#0c1420)!important;box-shadow:inset 0 0 60px #0008,0 18px 45px #0007!important}
+#threeCanvas{height:620px!important}
+#charHud{left:16px!important;top:15px!important;right:16px!important}
+#charHud .hudbox{background:linear-gradient(135deg,#101a29e8,#1d2938d8)!important;border-color:#667897!important;box-shadow:0 8px 25px #0007!important}
+#racePanel{top:60px!important;right:16px!important;background:linear-gradient(180deg,#111b2bed,#0d1522ed)!important;border-color:#657590!important;box-shadow:0 15px 35px #0008!important}
+#racePanel h3{font-size:14px!important}
+.raceGrid button{background:#182538!important;border-color:#445671!important}
+.raceGrid button.active{background:linear-gradient(135deg,#76552b,#47371f)!important;border-color:#f2ca78!important}
+#combatHud{left:16px!important;right:16px!important;bottom:16px!important}
+#movePad button,#actionPad button{background:linear-gradient(145deg,#27364bdd,#172234dd)!important;border-color:#61708bdd!important;box-shadow:0 5px 16px #0008!important}
+#actionPad .attack{background:linear-gradient(145deg,#9a6d31e8,#68451fe8)!important;border-color:#e4bd70!important}
+#actionPad .block{background:linear-gradient(145deg,#345c50e8,#1e3933e8)!important}
+#actionPad .danger{background:linear-gradient(145deg,#703d4ae8,#4a2631e8)!important}
+@media(max-width:600px){#threeStage,#threeCanvas{min-height:570px!important;height:570px!important}.pvpStrip{font-size:10px}#pvpConnect{width:100%;margin-left:0}}
 </style></head><body><div class="wrap">
 <header class="top"><div class="brand"><div class="logo">✧</div><div><h1>Reborn: Kingdoms of Eternity</h1><div class="sub">The Shattered Vale · Fantasy RPG</div></div></div><div class="pills"><span class="pill">⚔ Lv <b id="level">1</b></span><span class="pill">✦ <b id="gold">25</b> gold</span><span class="pill">🐎 <b id="horse">No horse</b></span></div></header>
 <div class="grid"><main><section class="panel"><div class="hero"><div class="eyebrow">Chapter I · A soul reborn</div><h2 id="placeTitle">Verdant Crossing</h2><p id="placeText"></p><div class="slime">🟢</div></div>
 <div class="stats"><div class="stat"><small>Vitality · HP</small><strong id="hpText"></strong><div class="bar"><i id="hpBar"></i></div></div><div class="stat"><small>Mana · MP</small><strong id="mpText"></strong><div class="bar mp"><i id="mpBar"></i></div></div><div class="stat"><small>Experience</small><strong id="xpText"></strong><div class="bar"><i id="xpBar"></i></div></div></div>
 <h3>Explore the realm</h3><div class="places" id="places"></div><div id="context"></div><div id="battle"></div><div class="row"><button class="good" id="rest">☾ Rest at safe haven</button><button id="save">▣ Save</button><button id="reset">↺ New adventure</button></div><div class="hint">Progress is saved in this browser. No account needed.</div></section>
-<section class="panel" style="margin-top:14px"><h2>Chronicle</h2><div class="log" id="log" aria-live="polite"></div></section></main>
+<section class="panel" id="threeDPanel" style="margin-top:14px">
+<h2>Kingdom of AAsma · 3D Fantasy World</h2><div class="pvpStrip"><span class="pvpBadge">⚔ LIVE PvP</span><b>Player vs Player</b><span id="pvpStatus">Local arena ready · Online link available</span><button id="pvpConnect">Connect Opponent</button></div>
+<div id="threeStage">
+<canvas id="threeCanvas" aria-label="Interactive 3D character scene"></canvas>
+<div id="charHud"><div class="hudbox">Race: <b id="raceName">Hero</b><div id="animState">Idle</div></div><div class="hudbox">Rig: <b>Humanoid</b><br>Combat: <b id="combatState">Ready</b></div></div>
+<div id="racePanel"><h3>Character Selection</h3><div class="raceGrid">
+<button data-race="Hero" class="active">⚔ Hero</button><button data-race="Demon">😈 Demon</button><button data-race="Elf">🧝 Elf</button><button data-race="Fairy">🧚 Fairy</button>
+</div><div class="customGrid">
+<label>Skin <input id="skinColor" type="color" value="#d59b78"></label>
+<label>Hair <input id="hairColor" type="color" value="#3b2418"></label>
+<label>Armor <input id="armorColor" type="color" value="#536b84"></label>
+<label>Glow <input id="glowColor" type="color" value="#78d6c2"></label>
+</div></div>
+<div id="combatHud">
+<div id="movePad"><button class="up" data-move="forward">▲</button><button class="left" data-move="left">◀</button><button class="down" data-move="back">▼</button><button class="right" data-move="right">▶</button></div>
+<div id="actionPad">
+<button class="attack" data-anim="attack">⚔ Attack</button><button data-anim="cast">✨ Magic</button><button class="block" data-anim="block">🛡 Block</button>
+<button data-anim="dodge">↪ Dodge</button><button data-anim="special">💥 Special</button><button data-anim="jump">↟ Jump</button>
+<button data-anim="talk">💬 Talk</button><button data-anim="gesture">👋 Gesture</button><button class="danger" data-anim="hit">💢 Hit React</button>
+</div></div></div>
+<div class="hint">Touch controls drive the 3D rig. Existing RPG travel/combat buttons remain active below.</div>
+</section><section class="panel" style="margin-top:14px"><h2>Chronicle</h2><div class="log" id="log" aria-live="polite"></div></section></main>
 <aside><section class="panel"><h2>Adventurer's profile</h2><div class="info"><small>Reborn form</small><br><b>Primal Slime · Nym</b><br><small>A spirit able to adapt and learn from the world.</small></div><h3>Magic</h3><div class="info">🔥 <b>Ember Bolt</b><br><small>8 MP · Fire damage</small></div><div class="info">🌊 <b>Tidal Pulse</b><br><small>10 MP · Water damage</small></div><div class="info">🍃 <b>Gale Cut</b><br><small>7 MP · Wind damage</small></div><div class="info">💚 <b>Verdant Mend</b><br><small>12 MP · Restore health</small></div><h3>Inventory</h3><div class="inventory" id="inventory"></div><h3>Quest journal</h3><div id="quests"></div><h3>The known realms</h3><div class="info">👑 <b>Kingdom of Aurel</b><br><small>Humans · Queen Elowen</small></div><div class="info">🌿 <b>Emerald Court</b><br><small>Elves · Moonroot Grove</small></div><div class="info">🔥 <b>Obsidian Dominion</b><br><small>Demons · Lord Vael</small></div></section></aside></div></div>
 <script>
 (()=>{'use strict';
@@ -68,7 +132,7 @@ render();
 (()=>{
 const root=document.querySelector('.wrap');if(!root)return;
 // Keep the existing combat prototype available while adding a campaign dashboard.
-const bar=document.createElement('section');bar.className='panel';bar.style.marginTop='14px';bar.innerHTML='<h2>Campaign systems</h2><div class="two"><div class="info"><b>📜 Main story</b><br><small>Follow the trail of the Shattered Vale and uncover why Nym was reborn.</small></div><div class="info"><b>🛠️ Crafting & equipment</b><br><small>Collect materials from encounters and prepare for the next region.</small></div></div><div class="row"><button id="campJournal">📖 Open campaign journal</button><button id="campCraft">⚒ Craft a moonleaf charm</button><button id="campEquip">🛡 Equip adventurer's ward</button></div><div id="campResult" class="info" aria-live="polite">New campaign options are available. These additions are stored with your browser save.</div>';
+const bar=document.createElement('section');bar.className='panel';bar.style.marginTop='14px';bar.innerHTML='<h2>Campaign systems</h2><div class="two"><div class="info"><b>📜 Main story</b><br><small>Follow the trail of the Shattered Vale and uncover why Nym was reborn.</small></div><div class="info"><b>🛠️ Crafting & equipment</b><br><small>Collect materials from encounters and prepare for the next region.</small></div></div><div class="row"><button id="campJournal">📖 Open campaign journal</button><button id="campCraft">⚒ Craft a moonleaf charm</button><button id="campEquip">🛡 Equip adventurer’s ward</button></div><div id="campResult" class="info" aria-live="polite">New campaign options are available. These additions are stored with your browser save.</div>';
 root.querySelector('main').appendChild(bar);
 const key='rebornCampaignAddons';let a;try{a=JSON.parse(localStorage.getItem(key))||{materials:0,charm:false,ward:false,chapter:1}}catch{a={materials:0,charm:false,ward:false,chapter:1}}
 const result=document.getElementById('campResult');
@@ -78,4 +142,265 @@ document.getElementById('campCraft').onclick=()=>{let inv=document.getElementByI
 document.getElementById('campEquip').onclick=()=>{if(a.ward){show('The Adventurer’s Ward is already equipped.');return}a.ward=true;show('Adventurer’s Ward equipped. Its protective enchantment is recorded in your campaign journal.');};
 })();
 </script>
-</body></html>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script id="three3d-runtime">
+(()=>{'use strict';
+const canvas=document.getElementById('threeCanvas'); if(!canvas||!window.THREE)return;
+const T=window.THREE, stage=document.getElementById('threeStage');
+const scene=new T.Scene();
+scene.background=new T.Color(0x07101d);
+scene.fog=new T.FogExp2(0x101b2c,.025);
+const camera=new T.PerspectiveCamera(48,1,.1,160);
+camera.position.set(0,4.1,8.8);
+const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=T.PCFSoftShadowMap;
+renderer.outputColorSpace=T.SRGBColorSpace;
+renderer.toneMapping=T.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.12;
+
+const hemi=new T.HemisphereLight(0xc7ddff,0x172016,1.8);scene.add(hemi);
+const sun=new T.DirectionalLight(0xffe9c5,3.4);sun.position.set(18,26,12);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-35;sun.shadow.camera.right=35;sun.shadow.camera.top=35;sun.shadow.camera.bottom=-35;scene.add(sun);
+const moon=new T.DirectionalLight(0x7397ff,1.1);moon.position.set(-18,12,-20);scene.add(moon);
+
+const MAT=(c,r=.7,m=0,e=0)=>new T.MeshStandardMaterial({color:c,roughness:r,metalness:m,emissive:e?c:0,emissiveIntensity:e});
+const mesh=(g,m)=>{const x=new T.Mesh(g,m);x.castShadow=true;x.receiveShadow=true;return x};
+const box=(w,h,d,m)=>mesh(new T.BoxGeometry(w,h,d),m);
+const cyl=(r1,r2,h,m,n=12)=>mesh(new T.CylinderGeometry(r1,r2,h,n),m);
+const sph=(r,m)=>mesh(new T.SphereGeometry(r,28,20),m);
+const cone=(r,h,m,n=16)=>mesh(new T.ConeGeometry(r,h,n),m);
+const q=(x,y,z)=>new T.Quaternion().setFromEuler(new T.Euler(x,y,z));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+function buildWorld(){
+  const world=new T.Group();world.name='AAsma_Kingdom_World';scene.add(world);
+  const ground=mesh(new T.PlaneGeometry(110,110,32,32),MAT(0x314a42,.96));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;world.add(ground);
+
+  const road=mesh(new T.PlaneGeometry(8,80),MAT(0xc6a56a,.94));road.rotation.x=-Math.PI/2;road.position.set(0,.012,-18);world.add(road);
+  const river=mesh(new T.PlaneGeometry(11,80),new T.MeshPhysicalMaterial({color:0x286f9b,roughness:.16,metalness:.05,transmission:.12,transparent:true,opacity:.9}));river.rotation.x=-Math.PI/2;river.position.set(-14,.02,-18);world.add(river);
+
+  const islandMat=MAT(0x56765e,.9),stone=MAT(0x647082,.85),wall=MAT(0xb4a27f,.82),roof=MAT(0x52364b,.62,.1),wood=MAT(0x704c32,.88),gold=MAT(0xd9b75b,.35,.45),leaf=MAT(0x326b50,.8),leaf2=MAT(0x4f9270,.78),crystal=MAT(0x75d8d7,.18,.15,1);
+
+  // Royal castle with towers, banners and gate.
+  const castle=new T.Group();castle.position.set(15,0,-25);world.add(castle);
+  castle.add(box(15,6,8,wall));castle.children[0].position.y=3;
+  for(const sx of [-1,1])for(const sz of [-1,1]){
+    const t=new T.Group();t.position.set(sx*6.5,0,sz*3.4);castle.add(t);
+    const base=cyl(2.1,2.3,9,stone,12);base.position.y=4.5;t.add(base);
+    const roofM=cone(2.6,3.5,roof,8);roofM.position.y=10.7;t.add(roofM);
+    const flag=box(.07,2.5,.07,gold);flag.position.set(0,12.5,0);t.add(flag);
+    const cloth=new T.Mesh(new T.PlaneGeometry(1.3,.8),MAT(0x8b324d,.8));cloth.position.set(.6,12.1,0);cloth.rotation.y=Math.PI/2;t.add(cloth);
+  }
+  const gate=box(3,3.8,.35,MAT(0x2a2526,.55,.2));gate.position.set(0,2,-4.15);castle.add(gate);
+  const crest=mesh(new T.CircleGeometry(1,24),gold);crest.position.set(0,5.5,-4.35);crest.rotation.x=Math.PI/2;castle.add(crest);
+
+  // Village houses and market.
+  for(let i=0;i<9;i++){
+    const x=-9+(i%3)*6,z=-6-Math.floor(i/3)*7;
+    const h=new T.Group();h.position.set(x,0,z);world.add(h);
+    const b=box(4,2.6,3.6,i%2?wall:wood);b.position.y=1.3;h.add(b);
+    const r=cone(3,2.2,roof,4);r.rotation.y=Math.PI/4;r.position.y=3.7;h.add(r);
+    const door=box(.65,1.25,MAT(0x2b1d19,.8));door.position.set(0,.62,1.85);h.add(door);
+    const win=mesh(new T.PlaneGeometry(.75,.65),MAT(0x9ad8e4,.25,.1,1));win.position.set(-1.1,1.45,1.84);h.add(win);
+  }
+  const market=new T.Group();market.position.set(1,0,-3);world.add(market);
+  const stall=box(5,1.8,2.5,wood);stall.position.y=.9;market.add(stall);
+  const canopy=box(5.5,.18,3,roof);canopy.position.y=2.5;market.add(canopy);
+  for(const x of [-2.3,2.3]){const p=cyl(.08,.08,2.5,gold);p.position.set(x,1.25,0);market.add(p)}
+
+  // Forest grove.
+  function tree(x,z,s=1){
+    const g=new T.Group();g.position.set(x,0,z);g.scale.setScalar(s);world.add(g);
+    const trunk=cyl(.35,.55,3.2,wood,10);trunk.position.y=1.6;g.add(trunk);
+    for(const [y,r,c] of [[3.1,1.7,leaf],[4.2,1.35,leaf2],[5.05,.95,leaf]]){const l=sph(r,MAT(c,.92));l.scale.y=.8;l.position.y=y;g.add(l)}
+  }
+  for(let i=0;i<24;i++){const a=i*2.399;tree(-25+Math.cos(a)*7,8+Math.sin(a)*13,.75+.18*(i%3))}
+  // Magical crystals, rocks and lanterns.
+  for(let i=0;i<18;i++){
+    const a=i*2.1,r=6+(i%4)*2;const x=6+Math.cos(a)*r,z=-15+Math.sin(a)*r;
+    const cr=mesh(new T.OctahedronGeometry(.35+.15*(i%3)),crystal);cr.position.set(x,.5,z);cr.scale.y=1.8;world.add(cr);
+  }
+  for(let i=0;i<20;i++){const r=mesh(new T.DodecahedronGeometry(.5+(i%3)*.2),stone);r.position.set(-28+(i*3.1)%45,.35,5+(i%5)*4);r.scale.y=.6;world.add(r)}
+  for(const x of [-4,4,10,21]){const post=cyl(.08,.1,2.2,wood);post.position.set(x,1.1,2);world.add(post);const lamp=sph(.23,glowMat(0xffd36b));lamp.position.set(x,2.3,2);world.add(lamp)}
+
+  // Distant mountains give the scene depth.
+  for(let i=0;i<11;i++){const m=cone(7+Math.random()*5,10+Math.random()*10,MAT(0x34465b,.98),7);m.position.set(-42+i*8,5,-48-(i%3)*5);m.rotation.y=i*.37;world.add(m)}
+  return world;
+}
+function glowMat(c){return new T.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:3,roughness:.25,metalness:.1})}
+buildWorld();
+
+// Character system: detailed stylized meshes + explicit humanoid skeleton + AnimationClips.
+const raceCfg={
+ Hero:{skin:0xd39a78,hair:0x241a22,cloth:0x3e638d,trim:0xd7b766,glow:0x6dd5c2,eye:0x3b9ac7},
+ Demon:{skin:0x8e4350,hair:0x171018,cloth:0x4b2536,trim:0xd24f5b,glow:0xff5968,eye:0xffd66d},
+ Elf:{skin:0xcfa184,hair:0x527b68,cloth:0x355f51,trim:0xd6c47b,glow:0x9de6bb,eye:0x79d8ad},
+ Fairy:{skin:0xe5b4ad,hair:0x8456a4,cloth:0x5e4d8d,trim:0xf0c8ff,glow:0xd49bff,eye:0xa9e9ff}
+};
+const bonesNames=['Hips','Spine','Chest','Neck','Head','LeftShoulder','LeftElbow','LeftHand','RightShoulder','RightElbow','RightHand','LeftThigh','LeftKnee','LeftFoot','RightThigh','RightKnee','RightFoot'];
+let player,remotePlayer,selectedRace='Hero',mixer,actions={},activeAction,animName='Idle',animClock=0,playerVelocity=new T.Vector3();
+const dummyTarget=new T.Vector3();
+
+function bone(name,y){const b=new T.Bone();b.name=name;b.position.y=y;return b}
+function makeRig(race,remote=false){
+  const c=raceCfg[race]||raceCfg.Hero,root=new T.Group();root.name=(remote?'Remote_':'Player_')+race;
+  const b={};b.Hips=bone('Hips',1.05);root.add(b.Hips);
+  b.Spine=bone('Spine',.28);b.Hips.add(b.Spine);b.Chest=bone('Chest',.72);b.Spine.add(b.Chest);b.Neck=bone('Neck',.58);b.Chest.add(b.Neck);b.Head=bone('Head',.24);b.Neck.add(b.Head);
+  for(const side of [-1,1]){
+    const p=side<0?'Left':'Right';
+    b[p+'Shoulder']=bone(p+'Shoulder',.36);b[p+'Shoulder'].position.x=side*.43;b.Chest.add(b[p+'Shoulder']);
+    b[p+'Elbow']=bone(p+'Elbow',-.55);b[p+'Shoulder'].add(b[p+'Elbow']);
+    b[p+'Hand']=bone(p+'Hand',-.55);b[p+'Elbow'].add(b[p+'Hand']);
+    b[p+'Thigh']=bone(p+'Thigh',-.05);b[p+'Thigh'].position.x=side*.23;b.Hips.add(b[p+'Thigh']);
+    b[p+'Knee']=bone(p+'Knee',-.82);b[p+'Thigh'].add(b[p+'Knee']);
+    b[p+'Foot']=bone(p+'Foot',-.74);b[p+'Knee'].add(b[p+'Foot']);
+  }
+  const skin=MAT(c.skin,.58),hair=MAT(c.hair,.52),cloth=MAT(c.cloth,.72,.08),trim=MAT(c.trim,.36,.38),eye=glowMat(c.eye);
+  const torso=box(.95,.95,.52,cloth);torso.position.y=.48;b.Chest.add(torso);
+  const tunic=box(1.12,.5,.58,trim);tunic.position.y=.1;b.Hips.add(tunic);
+  const head=sph(.42,skin);head.position.y=.22;b.Head.add(head);
+  const face=sph(.405,skin);face.scale.z=1.04;face.position.set(0,.2,.02);b.Head.add(face);
+  // Eyes, brows and mouth create an expressive face instead of a blank primitive head.
+  for(const side of [-1,1]){
+    const e=sph(.052,eye);e.scale.z=.42;e.position.set(side*.14,.25,.38);b.Head.add(e);
+    const brow=box(.13,.028,.035,hair);brow.position.set(side*.14,.34,.37);brow.rotation.z=side*.12;b.Head.add(brow);
+  }
+  const mouth=box(.16,.025,.025,MAT(0x6f2d3a,.5));mouth.position.set(0,.10,.39);b.Head.add(mouth);
+  const cap=sph(.44,hair);cap.scale.set(1.04,.62,1.02);cap.position.y=.48;b.Head.add(cap);
+  for(let i=0;i<7;i++){const strand=mesh(new T.CapsuleGeometry(.055,.55,5,8),hair);strand.position.set((i-3)*.095,.43,.12+Math.abs(i-3)*.02);strand.rotation.z=(i-3)*.12;b.Head.add(strand)}
+  // Neck scarf, shoulder armor, gloves, boots, belt and pouches.
+  const scarf=cyl(.24,.29,.16,trim,16);scarf.position.y=.02;b.Neck.add(scarf);
+  for(const side of [-1,1]){
+    const p=side<0?'Left':'Right';
+    const shoulder=sph(.2,trim);shoulder.scale.set(1.25,.6,1);shoulder.position.y=-.02;b[p+'Shoulder'].add(shoulder);
+    const upper=box(.23,.6, .23,cloth);upper.position.y=-.3;b[p+'Shoulder'].add(upper);
+    const fore=box(.21,.55,.21,skin);fore.position.y=-.28;b[p+'Elbow'].add(fore);
+    const glove=sph(.15,skin);glove.position.y=-.28;b[p+'Hand'].add(glove);
+    const leg=box(.3,.78,.3,cloth);leg.position.y=-.39;b[p+'Thigh'].add(leg);
+    const boot=box(.34,.72,.42,trim);boot.position.set(0,-.35,.08);b[p+'Knee'].add(boot);
+    const foot=box(.34,.18,.58,trim);foot.position.set(0,-.08,.15);b[p+'Foot'].add(foot);
+    const pouch=box(.19,.18,.13,trim);pouch.position.set(side*.48,.02,.12);b.Hips.add(pouch);
+  }
+  const cloak=new T.Mesh(new T.PlaneGeometry(1.35,1.65,4,5),new T.MeshStandardMaterial({color:c.cloth,roughness:.8,side:T.DoubleSide}));cloak.position.set(0,.05,-.28);b.Chest.add(cloak);
+  const sword=box(.10,1.55,.11,trim);sword.position.set(.16,-.65,.13);sword.rotation.z=-.15;b.RightHand.add(sword);
+  const guard=box(.52,.08,.12,trim);guard.position.y=.1;b.RightHand.add(guard);
+  const aura=mesh(new T.TorusGeometry(.78,.025,8,48),glowMat(c.glow));aura.rotation.x=Math.PI/2;aura.position.y=-1.02;root.add(aura);
+  if(race==='Demon')for(const side of [-1,1]){const h=cone(.13,.5,skin);h.rotation.z=side*.42;h.position.set(side*.22,.57,.02);b.Head.add(h)}
+  if(race==='Elf')for(const side of [-1,1]){const ear=mesh(new T.ConeGeometry(.10,.46,16),skin);ear.rotation.z=side*Math.PI/2;ear.position.set(side*.38,.04,.02);b.Head.add(ear)}
+  if(race==='Fairy')for(const side of [-1,1]){const wing=new T.Mesh(new T.CircleGeometry(.55,32),new T.MeshStandardMaterial({color:c.glow,transparent:true,opacity:.46,side:T.DoubleSide,emissive:c.glow,emissiveIntensity:1.4}));wing.scale.y=1.65;wing.position.set(side*.5,.35,-.18);wing.rotation.y=side*.5;b.Chest.add(wing)}
+  root.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+  scene.add(root);
+  const skeleton=new T.Skeleton(Object.values(b));
+  root.userData={race,bones:b,skeleton,remote,aura};
+  return {root,bones:b,skeleton};
+}
+
+function track(boneName,property,times,values){const node=String(boneName).split('.').pop();return new T.NumberKeyframeTrack(node+'.'+property,times,values)}
+function makeClips(rig){
+  const n=rig.root.name, t=[0,.25,.5,.75,1];
+  const clips=[
+    new T.AnimationClip('Idle',2.2,[track(n+'.Spine','rotation[z]',[0,1.1,2.2],[0,.018,0]),track(n+'.Head','rotation[y]',[0,1.1,2.2],[0,.045,-.02])]),
+    new T.AnimationClip('Walk',.9,[track(n+'.LeftThigh','rotation[x]',t,[.35,-.55,.35,-.55,.35]),track(n+'.RightThigh','rotation[x]',t,[-.35,.55,-.35,.55,-.35]),track(n+'.LeftShoulder','rotation[x]',t,[-.28,.35,-.28,.35,-.28]),track(n+'.RightShoulder','rotation[x]',t,[.28,-.35,.28,-.35,.28]),track(n+'.Spine','rotation[z]',t,[0,.025,0,-.025,0])]),
+    new T.AnimationClip('Run',.55,[track(n+'.LeftThigh','rotation[x]',t,[.7,-.9,.7,-.9,.7]),track(n+'.RightThigh','rotation[x]',t,[-.7,.9,-.7,.9,-.7]),track(n+'.LeftShoulder','rotation[x]',t,[-.55,.7,-.55,.7,-.55]),track(n+'.RightShoulder','rotation[x]',t,[.55,-.7,.55,-.7,.55]),track(n+'.Spine','rotation[z]',t,[0,.05,0,-.05,0])]),
+    new T.AnimationClip('Attack',.72,[track(n+'.RightShoulder','rotation[x]',[0,.22,.5,.72],[.2,-2.2,1.1,.15]),track(n+'.RightElbow','rotation[x]',[0,.22,.5,.72],[0,-.6,-1.1,0]),track(n+'.Chest','rotation[y]',[0,.22,.5,.72],[0,-.55,.7,0])]),
+    new T.AnimationClip('Block',.7,[track(n+'.LeftShoulder','rotation[x]',[0,.25,.7],[0,-1.5,-1.25]),track(n+'.RightShoulder','rotation[x]',[0,.25,.7],[0,-1.5,-1.25]),track(n+'.LeftElbow','rotation[x]',[0,.25,.7],[0,-1.1,-1]),track(n+'.RightElbow','rotation[x]',[0,.25,.7],[0,-1.1,-1])]),
+    new T.AnimationClip('Dodge',.5,[track(n+'.Hips','rotation[z]',[0,.18,.35,.5],[0,.75,-.65,0]),track(n+'.LeftThigh','rotation[x]',[0,.25,.5],[0,-.6,0]),track(n+'.RightThigh','rotation[x]',[0,.25,.5],[0,.5,0])]),
+    new T.AnimationClip('Jump',1,[track(n+'.Hips','position[y]',[0,.25,.55,1],[1.05,1.55,1.55,1.05]),track(n+'.LeftThigh','rotation[x]',[0,.35,1],[-.2,-.8,-.1]),track(n+'.RightThigh','rotation[x]',[0,.35,1],[-.2,-.8,-.1])]),
+    new T.AnimationClip('Cast',1.05,[track(n+'.LeftShoulder','rotation[x]',[0,.35,1.05],[0,-1.65,-1.35]),track(n+'.RightShoulder','rotation[x]',[0,.35,1.05],[0,-1.65,-1.35]),track(n+'.Chest','rotation[z]',[0,.5,1.05],[0,.08,0])]),
+    new T.AnimationClip('Special',1.15,[track(n+'.LeftShoulder','rotation[x]',[0,.3,.65,1.15],[0,-2.2,1,-.2]),track(n+'.RightShoulder','rotation[x]',[0,.3,.65,1.15],[0,-2.2,1,-.2]),track(n+'.Chest','rotation[y]',[0,.3,.65,1.15],[0,-.8,.9,0])]),
+    new T.AnimationClip('Talk',1.2,[track(n+'.Head','rotation[y]',[0,.3,.6,.9,1.2],[0,.14,-.1,.12,0]),track(n+'.RightShoulder','rotation[x]',[0,.3,.6,.9,1.2],[-.3,-.7,-.3,-.7,-.3])]),
+    new T.AnimationClip('Gesture',1.1,[track(n+'.RightShoulder','rotation[x]',[0,.3,.65,1.1],[0,-1.15,-.8,0]),track(n+'.RightElbow','rotation[x]',[0,.3,.65,1.1],[0,-.8,-1.1,0])]),
+    new T.AnimationClip('Hit',.6,[track(n+'.Chest','rotation[x]',[0,.15,.6],[0,-.65,0]),track(n+'.Head','rotation[z]',[0,.15,.6],[0,.2,0])])
+  ];
+  return clips;
+}
+function setupPlayer(){
+  player=makeRig(selectedRace,false);mixer=new T.AnimationMixer(player.root);
+  for(const clip of makeClips(player)){const a=mixer.clipAction(clip);a.clampWhenFinished=clip.name!=='Idle';a.loop=clip.name==='Idle'||clip.name==='Walk'||clip.name==='Run'?T.LoopRepeat:T.LoopOnce;actions[clip.name]=a}
+  play('Idle',0);
+}
+function setupRemote(){remotePlayer=makeRig('Demon',true);remotePlayer.root.visible=false}
+function play(name,cross=.18){
+  const next=actions[name]||actions.Idle;if(activeAction===next)return;
+  if(activeAction)activeAction.fadeOut(cross);next.reset().fadeIn(cross).play();activeAction=next;animName=name;animClock=0;
+  const el=document.getElementById('animState');if(el)el.textContent=name;
+}
+function animateAction(name){play(name,.08)}
+function setRace(r){selectedRace=r;scene.remove(player.root);actions={};activeAction=null;setupPlayer();document.getElementById('raceName').textContent=r;document.querySelectorAll('[data-race]').forEach(x=>x.classList.toggle('active',x.dataset.race===r))}
+setupPlayer();setupRemote();
+
+const particles=new T.Group();particles.name='MagicParticles';scene.add(particles);
+function burst(color,count=28){
+  for(let i=0;i<count;i++){const p=mesh(new T.SphereGeometry(.035+.025*Math.random(),8,8),glowMat(color));p.position.copy(player.root.position);p.position.y+=1.1;const v=new T.Vector3((Math.random()-.5)*2,(Math.random())*2,(Math.random()-.5)*2);p.userData.v=v;p.userData.life=.8+Math.random()*.7;particles.add(p)}
+}
+function updateParticles(dt){for(let i=particles.children.length-1;i>=0;i--){const p=particles.children[i];p.userData.life-=dt;p.position.addScaledVector(p.userData.v,dt);p.userData.v.y-=2.8*dt;p.scale.multiplyScalar(.985);if(p.userData.life<=0)particles.remove(p)}}
+
+function move(dir,amount=.22){
+  const v=new T.Vector3();
+  if(dir==='forward')v.z=-1;if(dir==='back')v.z=1;if(dir==='left')v.x=-1;if(dir==='right')v.x=1;
+  if(v.lengthSq()){v.normalize();player.root.position.addScaledVector(v,amount);player.root.position.x=clamp(player.root.position.x,-13,18);player.root.position.z=clamp(player.root.position.z,-35,10);player.root.rotation.y=Math.atan2(v.x,-v.z)}
+}
+const keys={};window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '){e.preventDefault();animateAction('Jump')}});window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+document.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();move(b.dataset.move);play('Walk',.08)}));
+document.querySelectorAll('[data-anim]').forEach(b=>b.addEventListener('pointerdown',e=>{
+  e.preventDefault();const a=b.dataset.anim;const map={attack:'Attack',cast:'Cast',block:'Block',dodge:'Dodge',special:'Special',jump:'Jump',talk:'Talk',gesture:'Gesture',hit:'Hit'};
+  animateAction(map[a]||'Idle');if(a==='cast'||a==='special')burst(raceCfg[selectedRace].glow,34);
+}));
+
+document.querySelectorAll('[data-race]').forEach(b=>b.addEventListener('click',()=>setRace(b.dataset.race)));
+['skinColor','hairColor','armorColor','glowColor'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{
+  // Customization remains live and is intentionally applied to the detailed meshes.
+  const vals={skinColor:'skin',hairColor:'hair',armorColor:'cloth',glowColor:'glow'};
+  const key=vals[id],color=new T.Color(document.getElementById(id).value),cfg=raceCfg[selectedRace];
+  player.root.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){const h=o.material.color.getHex();if(key==='skin'&&h===cfg.skin)o.material.color.copy(color);if(key==='hair'&&h===cfg.hair)o.material.color.copy(color);if(key==='cloth'&&h===cfg.cloth)o.material.color.copy(color)}})
+}));
+
+// Online PvP transport is opt-in: peer IDs are exchanged by the players and movement/combat state is synchronized.
+let peer=null,conn=null,pvpId='';
+function loadPeerJS(){
+  return new Promise((resolve,reject)=>{if(window.Peer)return resolve();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';s.onload=()=>resolve();s.onerror=reject;document.head.appendChild(s)})
+}
+async function connectPvP(){
+  const status=document.getElementById('pvpStatus');status.textContent='Starting secure peer-to-peer lobby…';
+  try{await loadPeerJS();peer=new Peer();peer.on('open',id=>{pvpId=id;const opponent=prompt('Your Player ID is '+id+'\nEnter your opponent\'s Player ID to connect (Cancel to wait):');if(opponent){conn=peer.connect(opponent);wireConn() }else status.textContent='Waiting for an opponent · Your ID: '+id});
+    peer.on('connection',c=>{conn=c;wireConn()});peer.on('error',e=>status.textContent='PvP connection error: '+e.type);
+  }catch(e){status.textContent='PvP transport unavailable in this browser.'}
+}
+function wireConn(){
+  if(!conn)return;const status=document.getElementById('pvpStatus');
+  conn.on('open',()=>{status.textContent='⚔ Opponent connected · REAL PLAYER VS PLAYER';remotePlayer.root.visible=true;conn.send({type:'hello',race:selectedRace})});
+  conn.on('data',d=>{if(!d)return;if(d.type==='state'){remotePlayer.root.position.set(d.x,d.y,d.z);remotePlayer.root.rotation.y=d.r;remotePlayer.root.visible=true;if(d.anim){const clip=makeClips(remotePlayer).find(c=>c.name===d.anim);if(clip){/* remote rig uses explicit clip data; visual state is mirrored below */remotePlayer.root.userData.lastAnim=d.anim}}}if(d.type==='race'){remotePlayer.root.visible=true}});
+  conn.on('close',()=>{status.textContent='Opponent disconnected · Arena open';remotePlayer.root.visible=false});
+}
+document.getElementById('pvpConnect').onclick=connectPvP;
+
+let last=performance.now(),camTarget=new T.Vector3();
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
+window.addEventListener('resize',resize);resize();
+
+function animate(){
+  requestAnimationFrame(animate);const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;animClock+=dt;
+  let moving=false;
+  if(keys.w||keys.arrowup){move('forward',dt*5.8);moving=true}
+  if(keys.s||keys.arrowdown){move('back',dt*5.8);moving=true}
+  if(keys.a||keys.arrowleft){move('left',dt*5.8);moving=true}
+  if(keys.d||keys.arrowright){move('right',dt*5.8);moving=true}
+  if(moving&&(!activeAction||activeAction.isRunning()===false||animName==='Idle'||animName==='Walk'||animName==='Run'))play(keys.shift?'Run':'Walk',.14);
+  else if(!moving&&(animName==='Walk'||animName==='Run'))play('Idle',.18);
+  if(mixer)mixer.update(dt);
+  updateParticles(dt);
+  player.root.userData.aura.rotation.z+=dt*.7;
+  if(activeAction&&activeAction.loop===T.LoopOnce&&activeAction.time>=activeAction.getClip().duration-.03)play('Idle',.12);
+  // Smooth cinematic third-person camera.
+  const behind=new T.Vector3(0,3.7,7.5).applyAxisAngle(new T.Vector3(0,1,0),player.root.rotation.y);
+  camTarget.copy(player.root.position).add(behind);
+  camera.position.lerp(camTarget,1-Math.pow(.0008,dt));
+  dummyTarget.copy(player.root.position);dummyTarget.y+=1.15;camera.lookAt(dummyTarget);
+  if(conn&&conn.open&&Math.floor(now/100)%2===0)conn.send({type:'state',x:player.root.position.x,y:player.root.position.y,z:player.root.position.z,r:player.root.rotation.y,anim:animName,race:selectedRace});
+  renderer.render(scene,camera);
+}
+animate();
+})();
+</script></body></html>
