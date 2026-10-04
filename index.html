@@ -459,6 +459,7 @@ function loadImportedAssets(){
     importedCharacterSource=character;
     importedAnimationClips=[...(ual1.animations||[]),...(ual2.animations||[])];
     outfitSource=outfit;
+    window.__AASMA_OUTFIT_READY__=true;
     importedReady=true;
     window.__AASMA_IMPORTED_ASSET_READY__=true;
     installImportedCharacter(player,selectedRace);
@@ -467,7 +468,7 @@ function loadImportedAssets(){
     document.getElementById('pvpStatus').textContent='3D rig + CC0 animation library loaded · online PvP ready';
   }).catch(err=>{
     importedLoadError=String(err?.message||err);
-    window.__AASMA_IMPORTED_ASSET_READY__=false;
+    window.__AASMA_IMPORTED_ASSET_READY__=false;window.__AASMA_OUTFIT_READY__=false;
     document.getElementById('animState').textContent='Idle · procedural fallback (asset load failed)';
     document.getElementById('pvpStatus').textContent='Asset CDN unavailable · procedural fallback active';
     console.warn('AAsma imported asset load failed',err);
