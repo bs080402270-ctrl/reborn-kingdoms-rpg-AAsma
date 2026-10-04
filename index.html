@@ -385,7 +385,7 @@ function syncOutfitSkeleton(root){
   outfit.traverse(o=>{if(o.isBone){const b=baseBones.get(o.name);if(b){o.position.copy(b.position);o.quaternion.copy(b.quaternion);o.scale.copy(b.scale)}}});
 }
 function attachKnightOutfit(root,race){
-  if(!outfitSource?.scene)return;
+  const source=outfitSources[race]||outfitSources.Hero;if(!source?.scene)return;
   if(root.userData.outfitModel)root.remove(root.userData.outfitModel);
   const outfit=window.AAsmaSkeletonUtils.clone(source.scene);
   const base=root.userData.importedModel;
