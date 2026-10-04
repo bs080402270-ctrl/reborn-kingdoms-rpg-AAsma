@@ -250,11 +250,13 @@ const bonesNames=['Hips','Spine','Chest','Neck','Head','LeftShoulder','LeftElbow
 let player,remotePlayer,selectedRace='Hero',mixer,actions={},activeAction,animName='Idle',animClock=0,playerVelocity=new T.Vector3();
 let importedCharacterSource=null, importedAnimationClips=[], importedReady=false, importedLoadError='';
 let remoteMixer=null,remoteActions={},remoteActiveAction=null,remoteAnimName='Idle';
+let outfitSource=null;
 let importedAssetVersion='Quaternius CC0';
 const ASSET_URLS={
  character:'https://cdn.jsdelivr.net/gh/Seyamalam/blood-league-kickoff@aa02a4e6d8337a0604d2da131bcbbeb1f01badf0/public/assets/vendor/quaternius/night-striker.glb',
  ual1:'https://cdn.jsdelivr.net/gh/richardanaya/metaverse-avatar@84fd636910bf713099010efbab7f3c84550f4bcb/anims/UAL1_Standard.glb',
- ual2:'https://cdn.jsdelivr.net/gh/richardanaya/metaverse-avatar@84fd636910bf713099010efbab7f3c84550f4bcb/anims/UAL2_Standard.glb'
+ ual2:'https://cdn.jsdelivr.net/gh/richardanaya/metaverse-avatar@84fd636910bf713099010efbab7f3c84550f4bcb/anims/UAL2_Standard.glb',
+ outfit:'assets/characters/outfits/Male_Knight_Body_Armor.gltf'
 };
 const dummyTarget=new T.Vector3();
 
@@ -375,6 +377,22 @@ function configureImportedActions(actor,targetMixer){
   if(!result.Idle){const clip=makeClips(actor).find(x=>x.name==='Idle');result.Idle=targetMixer.clipAction(clip);result.Idle.loop=T.LoopRepeat}
   return result;
 }
+function syncOutfitSkeleton(root){
+  const outfit=root.userData?.outfitModel,base=root.userData?.importedModel;if(!outfit||!base)return;
+  const baseBones=new Map();base.traverse(o=>{if(o.isBone)baseBones.set(o.name,o)});
+  outfit.traverse(o=>{if(o.isBone){const b=baseBones.get(o.name);if(b){o.position.copy(b.position);o.quaternion.copy(b.quaternion);o.scale.copy(b.scale)}}});
+}
+function attachKnightOutfit(root,race){
+  if(!outfitSource?.scene)return;
+  if(root.userData.outfitModel)root.remove(root.userData.outfitModel);
+  const outfit=window.AAsmaSkeletonUtils.clone(outfitSource.scene);
+  const base=root.userData.importedModel;
+  const box=new T.Box3().setFromObject(base),size=box.getSize(new T.Vector3());
+  const scale=2.75/Math.max(.001,size.y);outfit.scale.setScalar(scale);outfit.rotation.copy(base.rotation);outfit.position.copy(base.position);
+  const cfg=raceCfg[race]||raceCfg.Hero;
+  outfit.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){o.material=o.material.clone();o.material.color?.setHex(cfg.cloth);if(o.material.metalness!==undefined)o.material.metalness=.55;if(o.material.roughness!==undefined)o.material.roughness=.4}}});
+  root.add(outfit);root.userData.outfitModel=outfit;syncOutfitSkeleton(root);
+}
 function clearVisualChildren(root,aura){
   for(const child of [...root.children])if(child!==aura){root.remove(child);child.traverse(o=>{if(o.isMesh){o.geometry?.dispose?.();if(o.material?.dispose)o.material.dispose()}})}
 }
@@ -391,6 +409,7 @@ function installImportedCharacter(actor,race,isRemote=false){
   tintImportedModel(model,race);createImportedAccessories(model,race);
   root.add(model);
   root.userData.imported=true;root.userData.importedModel=model;root.userData.race=race;
+  if(outfitSource)attachKnightOutfit(root,race);
   const targetMixer=new T.AnimationMixer(root);
   const targetActions=configureImportedActions(actor,targetMixer);
   if(isRemote){
@@ -436,9 +455,10 @@ function loadImportedAssets(){
   if(importedReady||importedCharacterSource||!window.AAsmaGLTFLoader)return;
   const Loader=window.AAsmaGLTFLoader,loader=new Loader();
   const load=url=>new Promise((resolve,reject)=>loader.load(url,resolve,undefined,reject));
-  Promise.all([load(ASSET_URLS.character),load(ASSET_URLS.ual1),load(ASSET_URLS.ual2)]).then(([character,ual1,ual2])=>{
+  Promise.all([load(ASSET_URLS.character),load(ASSET_URLS.ual1),load(ASSET_URLS.ual2),load(ASSET_URLS.outfit)]).then(([character,ual1,ual2,outfit])=>{
     importedCharacterSource=character;
     importedAnimationClips=[...(ual1.animations||[]),...(ual2.animations||[])];
+    outfitSource=outfit;
     importedReady=true;
     window.__AASMA_IMPORTED_ASSET_READY__=true;
     installImportedCharacter(player,selectedRace);
@@ -514,7 +534,7 @@ function animate(){
   if(keys.d||keys.arrowright){move('right',dt*5.8);moving=true}
   if(moving&&(!activeAction||activeAction.isRunning()===false||animName==='Idle'||animName==='Walk'||animName==='Run'))play(keys.shift?'Run':'Walk',.14);
   else if(!moving&&(animName==='Walk'||animName==='Run'))play('Idle',.18);
-  if(mixer)mixer.update(dt);if(remoteMixer)remoteMixer.update(dt);
+  if(mixer)mixer.update(dt);if(remoteMixer)remoteMixer.update(dt);syncOutfitSkeleton(player.root);if(remotePlayer?.root?.visible)syncOutfitSkeleton(remotePlayer.root);
   updateParticles(dt);
   player.root.userData.aura.rotation.z+=dt*.7;
   if(activeAction&&activeAction.loop===T.LoopOnce&&activeAction.time>=activeAction.getClip().duration-.03)play('Idle',.12);
