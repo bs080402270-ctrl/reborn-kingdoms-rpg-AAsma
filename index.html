@@ -188,7 +188,7 @@ function applyPose(s,t){if(!character)return;state=s;document.getElementById('an
  if(s==='turn'){b.Hips.rotation.y=Math.sin(t*5)*.8;b.Chest.rotation.y=Math.sin(t*5)*.35}
  if(s==='jump'){const p=Math.min(1,t/0.9);b.Hips.position.y=1.05+Math.sin(p*Math.PI)*.7;b.LeftThigh.rotation.x=-.65;b.RightThigh.rotation.x=-.65;b.LeftKnee.rotation.x=.9;b.RightKnee.rotation.x=.9}
  if(s==='attack'){const p=Math.min(1,t/.75);b.RightShoulder.rotation.x=-2.0+Math.sin(p*Math.PI)*.8;b.RightElbow.rotation.x=-.5;b.Chest.rotation.y=-.65+Math.sin(p*Math.PI)*.2;character.root.userData.weapon.rotation.z=-.8+Math.sin(p*Math.PI)*1.6}
- if(s==='cast'){b.RightShoulder.rotation.x=-1.5;b.LeftShoulder.rotation.x=-1.5;b.RightElbow.rotation.x=-.7;b.LeftElbow.rotation.x=-.7;b.Hand.rotation.x=fast*.15;b.Chest.rotation.z=Math.sin(t*7)*.04;character.root.userData.aura.scale.setScalar(1+Math.sin(t*12)*.15)}
+ if(s==='cast'){b.RightShoulder.rotation.x=-1.5;b.LeftShoulder.rotation.x=-1.5;b.RightElbow.rotation.x=-.7;b.LeftElbow.rotation.x=-.7;b.RightHand.rotation.x=fast*.15;b.Chest.rotation.z=Math.sin(t*7)*.04;character.root.userData.aura.scale.setScalar(1+Math.sin(t*12)*.15)}
  if(s==='block'){b.RightShoulder.rotation.x=-1.2;b.LeftShoulder.rotation.x=-1.2;b.RightElbow.rotation.x=-1.2;b.LeftElbow.rotation.x=-1.2;b.Chest.rotation.x=-.15}
  if(s==='dodge'){b.Hips.rotation.z=Math.sin(Math.min(t/.45,1)*Math.PI)*.8;b.LeftThigh.rotation.x=-.45;b.RightThigh.rotation.x=.35}
  if(s==='special'){b.RightShoulder.rotation.x=-2.3;b.LeftShoulder.rotation.x=-2.3;b.Chest.rotation.y=Math.sin(t*12)*.3;character.root.userData.aura.scale.setScalar(1+Math.sin(t*18)*.35)}
