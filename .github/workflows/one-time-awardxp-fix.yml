@@ -1,0 +1,59 @@
+name: one-time-awardxp-source-fix
+on:
+  push:
+    branches: [feature/aasma-stage2-living-world-gameplay]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.event.head_commit.message != 'fix: repair awardXP runtime state scope'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix awardXP source scope
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old="""function awardXP(amount){
+  const n=Math.max(0,Math.floor(amount||0)); s.xp+=n; say('You earn '+n+' XP.');
+  while(s.xp>=s.level*30){s.xp-=s.level*30;s.level++;s.maxHp+=18;s.maxMp+=8;s.hp=s.maxHp;s.mp=s.maxMp;say('Level up! You are now level '+s.level+'. Your HP and MP have increased.');}
+  render();persist();
+}"""
+          new="""function awardXP(amount){
+  const state=window.AAsmaGameState?.();
+  const log=window.AAsmaSay;
+  const renderGame=window.AAsmaRender;
+  const persistGame=window.AAsmaPersist;
+  if(!state)return;
+  const n=Math.max(0,Math.floor(amount||0));
+  state.xp+=n;
+  log?.('You earn '+n+' XP.');
+  while(state.xp>=state.level*30){state.xp-=state.level*30;state.level++;state.maxHp+=18;state.maxMp+=8;state.hp=state.maxHp;state.mp=state.maxMp;log?.('Level up! You are now level '+state.level+'. Your HP and MP have increased.');}
+  renderGame?.();
+  persistGame?.();
+}"""
+          if old not in s:
+              raise SystemExit('awardXP source block not found')
+          s=s.replace(old,new,1)
+          marker="function escape(t){return String(t).replace(/[&<>\\\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;',\"'\":'&#39;'}[c]))}"
+          if marker not in s:
+              raise SystemExit('state bridge insertion marker not found')
+          bridge=marker+"\nwindow.AAsmaGameState=()=>s;window.AAsmaSay=say;window.AAsmaPersist=persist;window.AAsmaRender=render;"
+          s=s.replace(marker,bridge,1)
+          p.write_text(s)
+          PY
+          node - <<'NODE'
+          const fs=require('fs');const html=fs.readFileSync('index.html','utf8');
+          if(!html.includes('window.AAsmaGameState=()=>s'))process.exit(1);
+          if(html.includes("s.xp+=n; say('You earn '+n+' XP.');"))process.exit(1);
+          console.log('awardXP source fix present');
+          NODE
+      - name: Commit source fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'fix: repair awardXP runtime state scope'
+          git push
