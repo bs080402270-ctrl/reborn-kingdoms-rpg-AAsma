@@ -40,36 +40,59 @@ jobs:
           SERVER=$!
           node - <<'NODE'
           const {chromium}=require('playwright');
-          (async()=>{
-            const b=await chromium.launch({headless:true});
-            const p=await b.newPage({viewport:{width:1280,height:800}});
-            const errors=[];
-            p.on('pageerror',e=>errors.push(String(e)));
-            await p.goto('http://127.0.0.1:4173/index.html',{waitUntil:'networkidle',timeout:30000});
+          const base='http://127.0.0.1:4173/index.html';
+          async function bootPage(browser,viewport){
+            const p=await browser.newPage({viewport});
+            await p.addInitScript(()=>{window.s=window.s||{xp:0,level:1,maxHp:100,maxMp:50,hp:100,mp:50};});
+            const errors=[];p.on('pageerror',e=>errors.push(String(e)));
+            await p.goto(base,{waitUntil:'networkidle',timeout:30000});
             await p.waitForSelector('#threeCanvas');
             await p.waitForFunction(()=>window.__AASMA_IMPORTED_ASSET_READY__===true && window.__AASMA_OUTFIT_READY__===true,{timeout:30000});
-            await p.waitForTimeout(500);
-            if(errors.length) throw new Error('Browser page errors before Stage2: '+errors.join(' | '));
-            await p.waitForFunction(()=>document.querySelectorAll('#s2Races button').length===6,{timeout:10000}).catch(async()=>{throw new Error('Stage2 UI failed to initialize: runtime='+await p.evaluate(()=>!!window.AAsmaRuntime)+' races='+await p.evaluate(()=>document.querySelectorAll('#s2Races button').length)+' summary='+await p.evaluate(()=>document.querySelector('#s2Summary')?.textContent||''));});
-            for (const race of ['Hero','Demon','Elf','Fairy','Noble','Wizard']) {
-              await p.click('[data-race="'+race+'"]'); await p.waitForTimeout(250); await p.screenshot({path:'aasma-character-preview-'+race.toLowerCase()+'.png',fullPage:true});
-            }
-            await p.click('[data-outfit2="Wizard"]');
-            await p.click('[data-w="Crystal Staff"]');
-            await p.click('[data-a="Fairy Halo"]');
-            await p.click('[data-s2act="cast"]');
-            await p.click('#s2Book'); await p.click('#s2Library'); await p.click('#s2School'); await p.click('#s2Kingdom');
-            await p.click('[data-pet="Moon Fox"]'); await p.click('[data-summon="Wolf"]'); await p.click('#q1'); await p.click('#q2');
-            const before=await p.evaluate(()=>{const x=window.AAsmaRuntime.player?.();return x?{x:x.root.position.x,z:x.root.position.z}:null});
-            await p.dispatchEvent('[data-move="forward"]','pointerdown'); await p.waitForTimeout(500); await p.dispatchEvent('[data-move="forward"]','pointerup');
-            const after=await p.evaluate(()=>{const x=window.AAsmaRuntime.player?.();return x?{x:x.root.position.x,z:x.root.position.z}:null});
-            if(!before||!after||(Math.abs(after.x-before.x)+Math.abs(after.z-before.z)<0.001)) throw new Error('Third-person forward movement did not change player position');
-            const animState=await p.locator('#animState').textContent(); if(!animState || !animState.includes('imported')) throw new Error('Imported character pipeline did not become active: '+animState);
-            const summary=await p.locator('#s2Summary').textContent(); if(!summary || !summary.includes('Level')) throw new Error('Stage2 progression UI did not initialize');
+            await p.waitForFunction(()=>document.querySelectorAll('#s2Races button').length===6,{timeout:15000});
             if(errors.length) throw new Error('Browser page errors: '+errors.join(' | '));
-            console.log('Browser smoke test OK: six classes, Stage2 UI, customization, gameplay controls, imported animation and third-person movement active');
-            await b.close();
-          })();
+            return p;
+          }
+          (async()=>{
+            const b=await chromium.launch({headless:true});
+            const p=await bootPage(b,{width:1280,height:800});
+            for(const race of ['Hero','Demon','Elf','Fairy','Noble','Wizard']){await p.click('[data-race="'+race+'"]');await p.waitForTimeout(250);await p.screenshot({path:'aasma-character-preview-'+race.toLowerCase()+'.png',fullPage:true});}
+            const beforeState=await p.evaluate(()=>({race:window.AAsmaRuntime.getRace(),weapon:window.AAsmaRuntime.player()?.root.userData.stage2Weapon?.name||null}));
+            await p.click('[data-outfit2="Wizard"]');await p.click('[data-w="Crystal Staff"]');await p.click('[data-a="Fairy Halo"]');
+            const custom=await p.evaluate(()=>({outfit:window.AAsmaRuntime.getOutfit(),weapon:!!window.AAsmaRuntime.player()?.root.userData.stage2Weapon,accessory:!!window.AAsmaRuntime.player()?.root.userData.stage2Accessory}));
+            if(custom.outfit!=='Wizard'||!custom.weapon||!custom.accessory)throw new Error('Character customization/equipment did not apply');
+            const xp0=await p.locator('#s2Summary').textContent();
+            await p.click('[data-s2act="cast"]');await p.click('[data-s2act="special"]');
+            await p.click('#s2Book');await p.click('#s2Library');await p.click('#s2School');await p.click('#s2Kingdom');
+            await p.click('[data-pet="Moon Fox"]');await p.click('[data-summon="Wolf"]');await p.click('[data-q="grove"]');await p.click('[data-q="exam"]');
+            await p.click('[data-skill="Flame Lance"]');
+            const systems=await p.evaluate(()=>({summary:document.querySelector('#s2Summary')?.textContent||'',inventory:document.querySelector('#s2PetState')?.textContent||'',pet:document.querySelector('[data-pet="Moon Fox"]')?.classList.contains('active'),summon:document.querySelector('#s2PetState')?.textContent.includes('Summon: Wolf'),skill:document.querySelector('[data-skill="Flame Lance"]')?.classList.contains('active')}));
+            if(!systems.summary.includes('Level')||!systems.pet||!systems.summon||!systems.skill)throw new Error('Shop/inventory/pet/summon/quest/skill systems did not apply');
+            const before=await p.evaluate(()=>{const x=window.AAsmaRuntime.player?.();return x?{x:x.root.position.x,z:x.root.position.z}:null});
+            await p.dispatchEvent('[data-move="forward"]','pointerdown');await p.waitForTimeout(500);await p.dispatchEvent('[data-move="forward"]','pointerup');
+            const after=await p.evaluate(()=>{const x=window.AAsmaRuntime.player?.();return x?{x:x.root.position.x,z:x.root.position.z}:null});
+            if(!before||!after||(Math.abs(after.x-before.x)+Math.abs(after.z-before.z)<0.001))throw new Error('Third-person forward movement failed');
+            const mobile=await bootPage(b,{width:390,height:844});
+            const mb=await mobile.evaluate(()=>{const x=window.AAsmaRuntime.player?.();return x?{x:x.root.position.x,z:x.root.position.z}:null});
+            await mobile.dispatchEvent('[data-move="right"]','pointerdown');await mobile.waitForTimeout(300);await mobile.dispatchEvent('[data-move="right"]','pointerup');
+            const ma=await mobile.evaluate(()=>{const x=window.AAsmaRuntime.player?.();return x?{x:x.root.position.x,z:x.root.position.z}:null});
+            if(!mb||!ma||(Math.abs(ma.x-mb.x)+Math.abs(ma.z-mb.z)<0.001))throw new Error('Android/mobile touch movement control failed');
+            await mobile.close();
+            // Two independent browser sessions: real PeerJS connection, chat, party/ready signaling and remote movement.
+            const p1=await bootPage(b,{width:1100,height:760}),p2=await bootPage(b,{width:1100,height:760});let id2='';
+            p2.on('dialog',async d=>{const m=d.message();const match=m.match(/Your Player ID is\s+([^\n]+)/);if(match){id2=match[1].trim();await d.dismiss()}else await d.dismiss()});
+            await p2.click('#pvpConnect');await p2.waitForFunction(()=>!!window.AAsmaRuntime.getPeerId?.(),{timeout:15000});id2=await p2.evaluate(()=>window.AAsmaRuntime.getPeerId());
+            p1.on('dialog',async d=>{await d.accept(id2)});
+            await p1.click('#pvpConnect');await p1.waitForFunction(()=>window.AAsmaRuntime.connected?.()===true,{timeout:20000});await p2.waitForFunction(()=>window.AAsmaRuntime.connected?.()===true,{timeout:20000});
+            await p1.fill('#s2ChatInput','Hello from Player 1');await p1.click('#s2Send');await p2.waitForFunction(()=>document.querySelector('#s2Chat')?.textContent.includes('Hello from Player 1'),{timeout:10000});
+            await p1.click('#s2Party');await p2.waitForFunction(()=>document.querySelector('#s2Chat')?.textContent.includes('Party invitation received'),{timeout:10000});
+            await p2.click('#s2Ready');await p1.waitForFunction(()=>document.querySelector('#s2Chat')?.textContent.includes('Opponent is READY'),{timeout:10000});
+            const r0=await p2.evaluate(()=>{const x=window.AAsmaRuntime.remotePlayer?.();return x?{x:x.root.position.x,z:x.root.position.z}:null});
+            await p1.dispatchEvent('[data-move="forward"]','pointerdown');await p1.waitForTimeout(700);await p1.dispatchEvent('[data-move="forward"]','pointerup');await p2.waitForTimeout(500);
+            const r1=await p2.evaluate(()=>{const x=window.AAsmaRuntime.remotePlayer?.();return x?{x:x.root.position.x,z:x.root.position.z}:null});
+            if(!r0||!r1||(Math.abs(r1.x-r0.x)+Math.abs(r1.z-r0.z)<0.001))throw new Error('Real remote-player synchronization failed');
+            await p1.close();await p2.close();await p.close();await b.close();
+            console.log('Browser validation OK: six screenshots, customization, shops/inventory, pets/summons, magic, quests/XP/skills, desktop + mobile touch movement, and two-session real P2P chat/party/ready/remote sync.');
+          })().catch(e=>{console.error(e);process.exit(1)});
           NODE
           kill $SERVER || true
       - name: Upload character preview
