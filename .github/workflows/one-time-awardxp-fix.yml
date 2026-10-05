@@ -2,6 +2,8 @@ name: one-time-awardxp-source-fix
 on:
   push:
     branches: [feature/aasma-stage2-living-world-gameplay]
+  pull_request:
+    branches: [main]
 permissions:
   contents: write
 jobs:
